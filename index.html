@@ -1216,8 +1216,8 @@ body::before{
 @keyframes cardIn        {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
 /* Page enter animation */
-@keyframes pageSlideIn   {from{opacity:0;transform:translateY(18px) scale(0.993)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes pageSlideOut  {from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-10px)}}
+@keyframes pageEnter{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes pageExit{0%{opacity:1}100%{opacity:0}}
 
 /* Shimmer sweep — reusable */
 @keyframes shimmer{
@@ -1268,8 +1268,8 @@ body::before{
 
 /* ── SPA page transitions ── */
 .page{display:none;will-change:opacity,transform;}
-.page.active{display:block;animation:pageSlideIn 0.42s cubic-bezier(0.22,1,0.36,1) both;}
-.page.leaving{animation:pageSlideOut 0.22s ease forwards;}
+.page.active{display:block;animation:pageEnter 0.38s cubic-bezier(0.22,1,0.36,1) both;}
+.page.leaving{animation:pageExit 0.18s ease forwards;}
 
 /* ══════════════════════════════════════════
    BUTTON GLOW & SHIMMER SYSTEM
@@ -1481,6 +1481,38 @@ body::before{
 </style>
 </head>
 <body>
+
+<!-- ══ AUTH LOADER — shown until Firebase resolves auth state ══ -->
+<div id="auth-loader" style="
+  position:fixed;inset:0;z-index:9999;
+  background:#f9f6f0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  transition:opacity 0.3s ease;
+">
+  <div style="
+    width:48px;height:48px;
+    background:linear-gradient(145deg,#1a4a2e,#2d6b44);
+    border-radius:13px;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 20px rgba(26,74,46,0.3);
+    animation:loaderPulse 1.4s ease-in-out infinite;
+  ">
+    <svg viewBox="0 0 26 26" fill="none" width="26" height="26">
+      <path d="M13 24 C12.5 20 11.8 16 12.2 12" stroke="#e2c97e" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M12 13 C9 10 5.5 9.5 4 7.5 C7 7 10 9 12 12" fill="#7aad8a"/>
+      <path d="M13 13 C16 10 19.5 9.5 21 7.5 C18 7 15 9 13 12" fill="#7aad8a"/>
+      <path d="M12.5 12 C12 8 13 5 13 3 C14 5 14.5 8 13.5 12" fill="#7aad8a"/>
+      <circle cx="12.5" cy="12.5" r="1.2" fill="#c9a84c"/>
+    </svg>
+  </div>
+  <div style="width:36px;height:3px;background:#e8f5ec;border-radius:3px;overflow:hidden;">
+    <div style="height:100%;background:linear-gradient(90deg,#1a4a2e,#c9a84c);border-radius:3px;animation:loaderBar 1.4s ease-in-out infinite;"></div>
+  </div>
+  <style>
+    @keyframes loaderPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+    @keyframes loaderBar{0%{width:0%;margin-right:100%;}50%{width:60%;margin-right:40%;}100%{width:0%;margin-right:100%;}}
+  </style>
+</div>
 
 <!-- ══════════════════════════════════════════
      NAVIGATION — RTL: [Logo + Name + Cart + User] right | Links left | Hamburger mobile
@@ -2411,40 +2443,89 @@ document.getElementById('settings-drawer').addEventListener('touchmove', e => {
    SPA ROUTER
 ════════════════════════════════ */
 let _currentPage = 'home';
+window._authReady = false; // set to true by Firebase module after onAuthStateChanged resolves
+
+/* ── Wait for Firebase auth to resolve (max 6s) ── */
+function _waitForAuth() {
+  return new Promise(resolve => {
+    if (window._authReady) { resolve(); return; }
+    let tries = 0;
+    const t = setInterval(() => {
+      tries++;
+      if (window._authReady || tries >= 60) { clearInterval(t); resolve(); }
+    }, 100);
+  });
+}
+
+/* ── Protected pages that require auth check before init ── */
+const _protectedPages = ['profile', 'checkout'];
 
 function navigate(page, data={}) {
-  // Smooth page transition
   const current = document.querySelector('.page.active');
-  const next = document.getElementById('page-'+page);
-  if(!next) { console.warn('Page not found:', page); return; }
-  if(current && current !== next) {
+  const next    = document.getElementById('page-' + page);
+  if (!next) { console.warn('Page not found:', page); return; }
+
+  if (current && current !== next) {
     current.classList.add('leaving');
     setTimeout(() => {
-      current.classList.remove('active','leaving');
+      current.classList.remove('active', 'leaving');
       next.classList.add('active');
-      window.scrollTo({ top:0, behavior:'instant' });
+      window.scrollTo({ top: 0, behavior: 'instant' });
       _finishNavigate(page, data);
     }, 180);
   } else {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active','leaving'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active', 'leaving'));
     next.classList.add('active');
-    window.scrollTo({ top:0, behavior:'instant' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
     _finishNavigate(page, data);
   }
 }
 
-function _finishNavigate(page, data={}) {
+async function _finishNavigate(page, data={}) {
   _currentPage = page;
-  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-  const navEl = document.getElementById('nav-'+page);
-  if(navEl) navEl.classList.add('active');
-  const nl = document.getElementById('nav-links');
+  window._currentPage = page;
+
+  // Close mobile nav
+  document.getElementById('nav-links')?.classList.remove('open');
   const mt = document.getElementById('menu-toggle');
-  nl?.classList.remove('open');
   mt?.classList.remove('open');
   mt?.setAttribute('aria-expanded', 'false');
-  const inits = { home:initHome, shop:initShop, product:() => initProduct(data.id), cart:initCart, checkout:initCheckout, login:initLogin, profile:initProfile };
-  if(inits[page]) inits[page]();
+
+  // Update active nav link
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('nav-' + page)?.classList.add('active');
+
+  // Reset profile binding flags when leaving profile
+  if (page !== 'profile') {
+    const sidebar = document.querySelector('#page-profile .profile-sidebar');
+    if (sidebar) sidebar._delegated = false;
+    const form = document.getElementById('edit-profile-form');
+    if (form) form._bound = false;
+    const ol = document.getElementById('orders-list');
+    if (ol) { ol._delegated = false; }
+    window._orderSubBound = false;
+  }
+
+  // For protected pages — wait for auth then check
+  if (_protectedPages.includes(page)) {
+    await _waitForAuth();
+    if (!Store.getState('user')) {
+      UI.showToast('يرجى تسجيل الدخول أولاً.', 'warning');
+      navigate('login');
+      return;
+    }
+  }
+
+  const inits = {
+    home:     initHome,
+    shop:     initShop,
+    product:  () => initProduct(data.id),
+    cart:     initCart,
+    checkout: initCheckout,
+    login:    initLogin,
+    profile:  initProfile
+  };
+  if (inits[page]) inits[page]();
   UI.initRipples();
 }
 
@@ -2530,7 +2611,7 @@ function initProduct(id) {
   if(bc) bc.textContent = product.name;
   const disc = product.originalPrice > product.price ? Math.round((1 - product.price/product.originalPrice) * 100) : 0;
   container.innerHTML = `
-    <div class="product-detail-grid" style="animation:fadeInUp 0.4s ease both;">
+    <div class="product-detail-grid" style="animation:pageEnter 0.35s cubic-bezier(0.22,1,0.36,1) both;">
       <div class="product-img-wrap">
         <img src="${product.image}" alt="${product.name}" class="product-detail-img" loading="lazy">
         ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
@@ -2687,8 +2768,11 @@ function initCheckout() {
 }
 
 function initLogin() {
-  // If already logged in, go to profile immediately
-  if(Store.getState('user')) { navigate('profile'); return; }
+  // Wait for auth then check — don't redirect if still resolving
+  _waitForAuth().then(() => {
+    if (Store.getState('user')) { navigate('profile'); return; }
+  });
+  // Continue rendering login form regardless (no blocking)
 
   const tabs         = document.querySelectorAll('#page-login .auth-tab');
   const loginForm    = document.getElementById('login-form');
@@ -2773,83 +2857,86 @@ function initLogin() {
 
 function initProfile() {
   const user = Store.getState('user');
-  if (!user) {
-    UI.showToast('يرجى تسجيل الدخول.', 'warning');
-    setTimeout(() => navigate('login'), 800);
-    return;
-  }
+  // Auth already verified by _finishNavigate's _waitForAuth guard
+  if (!user) return; // safety fallback
 
-  // ── Render user info ──
-  const setEl = (id, val) => { const el = document.getElementById(id); if(el) el.src !== undefined && el.tagName === 'IMG' ? el.src = val : el.textContent = val; };
-  document.getElementById('profile-avatar').src          = user.avatar;
-  document.getElementById('profile-name').textContent    = user.name;
-  document.getElementById('profile-email').textContent   = user.email;
-  document.getElementById('edit-name').value             = user.name;
-  document.getElementById('profile-avatar-preview').src  = user.avatar;
-  document.getElementById('edit-email-disabled').value   = user.email;
+  // ── Render user data ──
+  document.getElementById('profile-avatar').src         = user.avatar || '';
+  document.getElementById('profile-name').textContent   = user.name   || '';
+  document.getElementById('profile-email').textContent  = user.email  || '';
+  document.getElementById('profile-avatar-preview').src = user.avatar || '';
+  document.getElementById('edit-name').value            = user.name   || '';
+  document.getElementById('edit-email-disabled').value  = user.email  || '';
 
   // ── Render orders ──
   _renderOrders();
-
-  // ── Subscribe to orders changes (use cloneNode trick to avoid duplicate subs) ──
-  const ordersList = document.getElementById('orders-list');
-  if (ordersList && !ordersList._orderSub) {
-    ordersList._orderSub = true;
+  if (!window._orderSubBound) {
+    window._orderSubBound = true;
     Store.subscribe('orders', _renderOrders);
   }
 
-  // ── Tab switching — clone to remove old listeners ──
-  document.querySelectorAll('#page-profile .profile-tab').forEach(tab => {
-    const fresh = tab.cloneNode(true);
-    tab.replaceWith(fresh);
-  });
-  document.querySelectorAll('#page-profile .profile-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
+  // ── Tabs — use event delegation on sidebar (runs once) ──
+  const sidebar = document.querySelector('#page-profile .profile-sidebar');
+  if (sidebar && !sidebar._delegated) {
+    sidebar._delegated = true;
+    sidebar.addEventListener('click', e => {
+      const tab = e.target.closest('.profile-tab');
+      if (!tab) return;
+
       if (tab.id === 'btn-open-settings') { openDrawer(); return; }
       if (tab.id === 'btn-logout') { AuthService.logout(); return; }
-      document.querySelectorAll('#page-profile .profile-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      document.querySelectorAll('#page-profile .tab-panel').forEach(p => p.classList.remove('active'));
-      document.getElementById(tab.dataset.panel)?.classList.add('active');
-    });
-  });
 
-  // ── Edit profile form — clone to remove old listeners ──
-  const oldForm = document.getElementById('edit-profile-form');
-  if (oldForm) {
-    const freshForm = oldForm.cloneNode(true);
-    oldForm.replaceWith(freshForm);
-    freshForm.addEventListener('submit', async e => {
+      const panel = tab.dataset.panel;
+      if (!panel) return;
+
+      // Update active tab
+      sidebar.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Show correct panel
+      document.querySelectorAll('#page-profile .tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(panel)?.classList.add('active');
+    });
+  }
+
+  // ── Edit profile form — bind once using _bound flag ──
+  const form = document.getElementById('edit-profile-form');
+  if (form && !form._bound) {
+    form._bound = true;
+    form.addEventListener('submit', async e => {
       e.preventDefault();
       const name = document.getElementById('edit-name').value.trim();
       if (!name) { UI.showToast('الاسم لا يمكن أن يكون فارغًا.', 'error'); return; }
-      const btn = freshForm.querySelector('button[type=submit]');
+      const btn = form.querySelector('button[type=submit]');
       if (btn) { btn.disabled = true; btn.textContent = 'جارٍ الحفظ...'; }
       const r = await AuthService.updateProfile({ name });
       if (btn) { btn.disabled = false; btn.textContent = 'حفظ التغييرات'; }
       if (r.ok) {
-        document.getElementById('profile-name').textContent      = name;
-        document.getElementById('profile-avatar').src            = r.user.avatar;
-        document.getElementById('profile-avatar-preview').src    = r.user.avatar;
+        document.getElementById('profile-name').textContent   = name;
+        document.getElementById('profile-avatar').src         = r.user.avatar;
+        document.getElementById('profile-avatar-preview').src = r.user.avatar;
         UI.showToast('تم تحديث الملف الشخصي!', 'success');
       } else {
-        UI.showToast(r.error, 'error');
+        UI.showToast(r.error || 'حدث خطأ.', 'error');
       }
     });
   }
 
-  // ── Order item actions ──
-  const orderContainer = document.getElementById('orders-list');
-  if (orderContainer && !orderContainer._actionsBound) {
-    orderContainer._actionsBound = true;
-    orderContainer.addEventListener('click', e => {
-      const btn = e.target.closest('[data-action]'); if (!btn) return;
-      const orderId   = btn.closest('[data-order-id]')?.dataset.orderId;
+  // ── Order actions — event delegation ──
+  const ordersList = document.getElementById('orders-list');
+  if (ordersList && !ordersList._delegated) {
+    ordersList._delegated = true;
+    ordersList.addEventListener('click', e => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const card      = btn.closest('[data-order-id]');
+      const orderId   = card?.dataset.orderId;
       const productId = btn.dataset.productId;
       const action    = btn.dataset.action;
       if (!orderId) return;
-      const order = OrdersService.getOrderById(orderId); if (!order) return;
-      const item  = order.items.find(i => i.id === productId);
+      const order = OrdersService.getOrderById(orderId);
+      if (!order) return;
+      const item = order.items.find(i => i.id === productId);
       if (action === 'inc'    && item) OrdersService.updateItemQuantity(orderId, productId, item.quantity + 1);
       if (action === 'dec'    && item) OrdersService.updateItemQuantity(orderId, productId, item.quantity - 1);
       if (action === 'remove')         OrdersService.removeItemFromOrder(orderId, productId);
@@ -3150,11 +3237,13 @@ document.addEventListener('DOMContentLoaded', () => {
   _cardFxObserver.observe(document.body, { childList:true, subtree:true });
   initCardEffects();
 
+  // Show home immediately (non-protected)
+  // Auth loader overlay hides once Firebase resolves
   navigate('home');
 });
 </script>
 
-<!-- ══ FIREBASE — runs after main script, Store & navigate are available ══ -->
+<!-- ══ FIREBASE — runs after main script ══ -->
 <script type="module">
 import { initializeApp }     from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
 import { getAnalytics }      from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
@@ -3162,14 +3251,15 @@ import {
   getAuth, onAuthStateChanged,
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
   signInWithPopup, GoogleAuthProvider, signOut,
-  updateProfile as fbUpdateProfile
+  updateProfile as fbUpdateProfile,
+  browserLocalPersistence, setPersistence
 } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
 import {
-  getFirestore, doc, setDoc, getDoc, updateDoc,
-  collection, addDoc, getDocs, query, where, orderBy
+  getFirestore, doc, setDoc, getDoc
 } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 
-const _app  = initializeApp({
+/* ── Init ── */
+const _app = initializeApp({
   apiKey:            "AIzaSyAcyBGhZU9gmtMlhLkerBskYnoCn6y-ezA",
   authDomain:        "technopalm.firebaseapp.com",
   projectId:         "technopalm",
@@ -3178,72 +3268,136 @@ const _app  = initializeApp({
   appId:             "1:113693334554:web:21071eb869a9a6d8e2c5a3",
   measurementId:     "G-159ZPJ6X5P"
 });
-const _analytics = getAnalytics(_app);
+getAnalytics(_app);
 const _auth = getAuth(_app);
 const _db   = getFirestore(_app);
 const _gp   = new GoogleAuthProvider();
 
+/* ── Ensure session survives refresh ── */
+setPersistence(_auth, browserLocalPersistence).catch(() => {});
+
+/* ── Helpers ── */
 function _buildUser(u) {
   const name = u.displayName || u.email.split('@')[0];
   return {
     id:        u.uid,
     name,
     email:     u.email,
-    avatar:    u.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a4a2e&color=e2c97e&bold=true&size=128`,
+    avatar:    u.photoURL ||
+               `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a4a2e&color=e2c97e&bold=true&size=128`,
     provider:  u.providerData[0]?.providerId || 'password',
     createdAt: u.metadata.creationTime
   };
 }
 
-/* ─── onAuthStateChanged: single source of truth ─── */
+async function _waitForStore() {
+  let i = 0;
+  while (!window.Store && i++ < 40) await new Promise(r => setTimeout(r, 50));
+  return window.Store;
+}
+
+function _loadUserData(uid) {
+  if (window.Storage && uid) window.Storage.reloadForUser(uid);
+}
+
+/* ════════════════════════════════════════════
+   AUTH STATE LISTENER
+   - Runs once on page load (checks persisted session)
+   - Runs again after login/logout
+   - Guards all protected pages with loading state
+════════════════════════════════════════════ */
+let _authResolved = false;
+
 onAuthStateChanged(_auth, async fbUser => {
-  const S = window.Store;
+  const S = await _waitForStore();
   if (!S) return;
 
   if (fbUser) {
     window.__fbUser = fbUser;
+    const uid  = fbUser.uid;
     const user = _buildUser(fbUser);
-    try {
-      const snap = await getDoc(doc(_db, 'users', fbUser.uid));
-      if (snap.exists()) Object.assign(user, snap.data());
-    } catch(e) {}
 
+    /* 1. Load this user's localStorage data (cart, orders) */
+    _loadUserData(uid);
+
+    /* 2. Set user in Store immediately */
     S.setState('user', user);
 
-    // Always navigate to profile when coming from login page
-    if (typeof navigate === 'function') {
-      const activePage = document.querySelector('.page.active');
-      if (activePage?.id === 'page-login') {
-        setTimeout(() => navigate('profile'), 250);
+    /* 3. Merge Firestore profile silently */
+    getDoc(doc(_db, 'users', uid)).then(snap => {
+      if (snap.exists()) {
+        const merged = { ...S.getState('user'), ...snap.data() };
+        S.setState('user', merged);
+        /* refresh profile UI if already on profile page */
+        if (typeof _currentPageRef !== 'undefined' && window._currentPage === 'profile') {
+          const el = document.getElementById('profile-name');
+          if (el && merged.name) el.textContent = merged.name;
+          const av = document.getElementById('profile-avatar');
+          if (av && merged.avatar) av.src = merged.avatar;
+        }
+      }
+    }).catch(() => {});
+
+    /* 4. On first resolution after refresh: stay on current page */
+    if (!_authResolved) {
+      _authResolved = true;
+      window._authReady = true;
+      _hideAuthLoader();
+      /* If app booted to login but user is logged in → go to profile */
+      const active = document.querySelector('.page.active');
+      if (active?.id === 'page-login') {
+        setTimeout(() => navigate('profile'), 300);
+      }
+    } else {
+      /* Subsequent calls (after manual login) → navigate to profile */
+      _hideAuthLoader();
+      const active = document.querySelector('.page.active');
+      if (active?.id === 'page-login') {
+        setTimeout(() => navigate('profile'), 300);
       }
     }
+
   } else {
+    /* No user — session expired or logged out */
     window.__fbUser = null;
+    _authResolved = true;
+    window._authReady = true;
+
     if (S.getState('user')) {
-      S.setState('user', null);
-      S.setState('cart', []);
+      S.setState('user',   null);
+      S.setState('cart',   []);
+      S.setState('orders', []);
     }
+    _hideAuthLoader();
   }
 });
 
-/* ─── Expose _fbAuth for AuthService to delegate to ─── */
+/* ── Auth loader overlay ── */
+function _hideAuthLoader() {
+  const loader = document.getElementById('auth-loader');
+  if (loader) {
+    loader.style.opacity = '0';
+    loader.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => loader.remove(), 350);
+  }
+}
+
+/* ════════════════════════════════════════════
+   _fbAuth — called by AuthService in main script
+════════════════════════════════════════════ */
 window._fbAuth = {
+
   login: async ({ email, password }) => {
     try {
       const cred = await signInWithEmailAndPassword(_auth, email, password);
       window.__fbUser = cred.user;
-      const uid = cred.user.uid;
-      // Set user immediately from Firebase Auth (fast)
+      const uid  = cred.user.uid;
       const user = _buildUser(cred.user);
+      _loadUserData(uid);
       window.Store?.setState('user', user);
-      // Reload this user's cart & orders (pass uid explicitly)
-      window.Storage?.reloadForUser(uid);
-      // Fetch Firestore profile in background (non-blocking)
-      getDoc(doc(_db, 'users', cred.user.uid)).then(snap => {
-        if (snap.exists()) {
-          const merged = { ...user, ...snap.data() };
-          window.Store?.setState('user', merged);
-        }
+      /* Merge profile silently */
+      getDoc(doc(_db, 'users', uid)).then(snap => {
+        if (snap.exists()) window.Store?.setState('user', { ...user, ...snap.data() });
       }).catch(() => {});
       return { ok: true };
     } catch(e) {
@@ -3251,7 +3405,7 @@ window._fbAuth = {
         'auth/user-not-found':     'لا يوجد حساب بهذا البريد.',
         'auth/wrong-password':     'كلمة المرور غير صحيحة.',
         'auth/invalid-email':      'بريد إلكتروني غير صالح.',
-        'auth/invalid-credential': 'بريد إلكتروني أو كلمة مرور غير صحيحة.'
+        'auth/invalid-credential': 'بريد أو كلمة مرور غير صحيحة.'
       };
       return { ok: false, error: m[e.code] || 'حدث خطأ، حاول مرة أخرى.' };
     }
@@ -3260,17 +3414,16 @@ window._fbAuth = {
   register: async ({ name, email, password }) => {
     try {
       const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a4a2e&color=e2c97e&bold=true&size=128`;
-      const cred = await createUserWithEmailAndPassword(_auth, email, password);
+      const cred   = await createUserWithEmailAndPassword(_auth, email, password);
       window.__fbUser = cred.user;
-      const uid = cred.user.uid;
-      // Set user immediately (fast)
+      const uid  = cred.user.uid;
       const user = { ..._buildUser(cred.user), name, avatar };
+      _loadUserData(uid);
       window.Store?.setState('user', user);
-      window.Storage?.reloadForUser(uid);
-      // Save to Firestore + update profile in background
+      /* Save profile + update displayName in background */
       Promise.all([
         fbUpdateProfile(cred.user, { displayName: name, photoURL: avatar }),
-        setDoc(doc(_db, 'users', cred.user.uid), { name, email, avatar, createdAt: new Date().toISOString() })
+        setDoc(doc(_db, 'users', uid), { name, email, avatar, createdAt: new Date().toISOString() })
       ]).catch(() => {});
       return { ok: true };
     } catch(e) {
@@ -3285,16 +3438,15 @@ window._fbAuth = {
 
   googleLogin: async () => {
     try {
-      const r = await signInWithPopup(_auth, _gp);
-      window.__fbUser = r.user;
-      const uid = r.user.uid;
-      const user = _buildUser(r.user);
+      const result = await signInWithPopup(_auth, _gp);
+      window.__fbUser = result.user;
+      const uid  = result.user.uid;
+      const user = _buildUser(result.user);
+      _loadUserData(uid);
       window.Store?.setState('user', user);
-      window.Storage?.reloadForUser(uid);
-      // Save to Firestore in background
-      setDoc(doc(_db, 'users', r.user.uid), {
-        name: r.user.displayName, email: r.user.email,
-        avatar: r.user.photoURL, provider: 'google',
+      setDoc(doc(_db, 'users', uid), {
+        name: result.user.displayName, email: result.user.email,
+        avatar: result.user.photoURL, provider: 'google',
         updatedAt: new Date().toISOString()
       }, { merge: true }).catch(() => {});
       return { ok: true };
@@ -3306,6 +3458,7 @@ window._fbAuth = {
 
   logout: async () => {
     await signOut(_auth).catch(() => {});
+    /* onAuthStateChanged will clear Store */
   },
 
   updateProfile: async ({ name }) => {
@@ -3313,10 +3466,9 @@ window._fbAuth = {
     const user   = window.Store?.getState('user');
     if (!fbUser || !user) return { ok: false, error: 'غير مسجل الدخول.' };
     try {
-      const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a4a2e&color=e2c97e&bold=true&size=128`;
+      const avatar  = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a4a2e&color=e2c97e&bold=true&size=128`;
       const updated = { ...user, name, avatar };
       window.Store.setState('user', updated);
-      // Save in background
       Promise.all([
         fbUpdateProfile(fbUser, { displayName: name, photoURL: avatar }),
         setDoc(doc(_db, 'users', fbUser.uid), { name, avatar }, { merge: true })
@@ -3328,7 +3480,7 @@ window._fbAuth = {
   }
 };
 
-console.log('%c🌴 Technopalm × Firebase — Ready', 'color:#c9a84c;font-weight:bold;font-size:13px');
+console.log('%c🌴 Technopalm × Firebase Ready', 'color:#c9a84c;font-weight:bold;font-size:14px');
 </script>
 </body>
 </html>

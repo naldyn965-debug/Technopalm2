@@ -183,7 +183,7 @@ body::before{
   height:var(--nav-h);display:flex;align-items:center;
   justify-content:space-between;gap:16px;direction:rtl;
 }
-.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0;direction:rtl;}
 .nav-brand{
   display:flex;align-items:center;gap:11px;cursor:pointer;
   transition:opacity var(--t-fast);direction:rtl;text-decoration:none;white-space:nowrap;
@@ -261,6 +261,7 @@ body::before{
 }
 .nav-links a:hover::after,.nav-links a.active::after{right:12px;left:12px;}
 .nav-links a:hover,.nav-links a.active{color:var(--c-forest);}
+.nav-links a:hover{background:rgba(26,74,46,0.05);border-radius:var(--r-sm);}
 
 .menu-toggle{
   display:none;flex-direction:column;gap:5px;
@@ -390,7 +391,31 @@ body::before{
    PRODUCT CARDS — Enhanced
 ══════════════════════════════════════════ */
 @keyframes cardIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardInLeft{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
+@keyframes cardInRight{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:translateX(0)}}
 @keyframes glowRingPop{0%{opacity:0.7;transform:translate(-50%,-50%) scale(0.3)}70%{opacity:0.25}100%{opacity:0;transform:translate(-50%,-50%) scale(2.8)}}
+/* Premium button shimmer — all .btn variants */
+.btn{isolation:isolate;}
+.btn::before{
+  content:'';position:absolute;
+  top:0;left:-75%;
+  width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.22),transparent);
+  transform:skewX(-15deg);
+  transition:none;pointer-events:none;
+}
+.btn:hover::before{
+  animation:btnShimmer 0.55s ease forwards;
+}
+@keyframes btnShimmer{
+  0%  {left:-75%;opacity:1;}
+  100%{left:125%;opacity:0.6;}
+}
+/* Gold pulse for btn-gold */
+.btn-gold::before{display:none;}
+/* Remove shimmer from icon-only buttons */
+.btn-add-card::before{display:none;}
+.nav-cart-btn::before{display:none;}
 @keyframes badgeSpin{0%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(4deg) scale(1.08)}100%{transform:rotate(-8deg) scale(1)}}
 
 .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:26px;}
@@ -401,9 +426,27 @@ body::before{
   animation:cardIn 0.48s cubic-bezier(0.22,1,0.36,1) both;
   transition:box-shadow 0.35s cubic-bezier(0.22,1,0.36,1),border-color 0.25s ease;position:relative;
 }
-.product-card-inner{border-radius:var(--r-lg);overflow:hidden;position:relative;z-index:1;background:var(--c-white);transition:transform 0.35s cubic-bezier(0.22,1,0.36,1);}
-.product-card::before{content:'';position:absolute;inset:-2px;border-radius:calc(var(--r-lg) + 2px);background:linear-gradient(135deg,rgba(45,107,68,0) 0%,rgba(122,173,138,0) 50%,rgba(201,168,76,0) 100%);opacity:0;transition:opacity 0.4s ease;z-index:0;pointer-events:none;filter:blur(8px);}
-.product-card:hover::before{background:linear-gradient(135deg,rgba(45,107,68,0.22) 0%,rgba(122,173,138,0.12) 50%,rgba(201,168,76,0.15) 100%);opacity:1;}
+.product-card-inner{
+  border-radius:var(--r-lg);overflow:hidden;
+  position:relative;z-index:1;background:var(--c-white);
+  transition:transform 0.35s cubic-bezier(0.22,1,0.36,1);
+  /* Prevent tilt from bleeding outside card */
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+.product-card::before{
+  content:'';
+  position:absolute;inset:0;
+  border-radius:var(--r-lg);
+  box-shadow:0 0 0 0 rgba(45,107,68,0),0 0 0 rgba(26,74,46,0);
+  opacity:0;
+  transition:opacity 0.3s ease,box-shadow 0.3s ease;
+  z-index:0;pointer-events:none;
+}
+.product-card:hover::before{
+  opacity:1;
+  box-shadow:0 0 0 1.5px rgba(45,107,68,0.18),0 18px 50px rgba(26,74,46,0.12);
+}
 .product-card-shine{position:absolute;inset:0;border-radius:var(--r-lg);background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,0.18) 0%,transparent 55%);opacity:0;transition:opacity 0.3s ease;pointer-events:none;z-index:2;}
 .product-card:hover{box-shadow:0 20px 60px rgba(26,74,46,0.18),0 6px 20px rgba(26,74,46,0.12),0 0 0 1.5px rgba(45,107,68,0.18);border-color:transparent;}
 .product-card:hover .product-card-shine{opacity:1;}
@@ -435,19 +478,72 @@ body::before{
 
 /* Add-to-cart button — enhanced with fly animation support */
 .btn-add-card{
-  width:44px;height:44px;
-  background:linear-gradient(135deg,var(--c-forest),var(--c-forest-l));
-  color:var(--c-white);border-radius:var(--r-sm);font-size:1.4rem;
+  width:40px;height:40px;
+  background:linear-gradient(135deg,var(--c-forest) 0%,var(--c-forest-l) 100%);
+  color:var(--c-white);border-radius:10px;font-size:1.25rem;font-weight:700;
   display:flex;align-items:center;justify-content:center;
-  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.28s ease,background 0.25s ease;
-  flex-shrink:0;position:relative;overflow:hidden;
+  transition:
+    transform 0.22s cubic-bezier(0.34,1.56,0.64,1),
+    box-shadow 0.22s ease,
+    background 0.22s ease,
+    opacity 0.18s ease;
+  flex-shrink:0;position:relative;overflow:hidden;cursor:pointer;
+  /* Shimmer layer */
+  isolation:isolate;
 }
-.btn-add-card:hover{transform:scale(1.18) rotate(8deg);box-shadow:0 6px 22px rgba(26,74,46,0.45);}
-.btn-add-card:active{transform:scale(0.93);}
-.btn-add-card.adding{animation:addBtnSuccess 0.4s ease;}
+/* Shimmer sweep on hover */
+.btn-add-card::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,0.32) 50%,transparent 65%);
+  background-size:200% 100%;background-position:200% 0;
+  transition:background-position 0.45s ease;
+  border-radius:inherit;pointer-events:none;
+}
+.btn-add-card:hover{
+  transform:scale(1.12);
+  box-shadow:0 6px 20px rgba(26,74,46,0.38),0 0 0 3px rgba(45,107,68,0.15);
+}
+.btn-add-card:hover::after{ background-position:-200% 0; }
+.btn-add-card:active{ transform:scale(0.92); box-shadow:none; }
+
+/* ── SUCCESS STATE — clean, no stuck styles ── */
+.btn-add-card.added{
+  background:linear-gradient(135deg,#16a34a 0%,#22c55e 100%) !important;
+  transform:scale(1.08) !important;
+  box-shadow:0 4px 16px rgba(34,197,94,0.45) !important;
+  transition:background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  pointer-events:none;
+}
+.btn-add-card.added::before{
+  content:'';position:absolute;inset:0;border-radius:inherit;
+  background:rgba(255,255,255,0.18);
+  animation:addedFlash 0.35s ease forwards;
+}
+@keyframes addedFlash{
+  0%{opacity:1;transform:scale(0.6);}
+  60%{opacity:0.6;transform:scale(1.4);}
+  100%{opacity:0;transform:scale(1);}
+}
+/* ── RESET STATE — smooth return ── */
+.btn-add-card.resetting{
+  transition:
+    background 0.4s cubic-bezier(0.22,1,0.36,1),
+    transform 0.4s cubic-bezier(0.22,1,0.36,1),
+    box-shadow 0.4s ease;
+}
 .out-badge{font-size:0.73rem;color:var(--c-text-3);font-weight:600;}
 
-.card-touch-ring{position:absolute;border-radius:50%;pointer-events:none;width:60px;height:60px;background:radial-gradient(circle,rgba(45,107,68,0.35) 0%,transparent 70%);border:1.5px solid rgba(45,107,68,0.3);animation:glowRingPop 0.65s ease-out forwards;z-index:10;transform:translate(-50%,-50%);will-change:transform,opacity;}
+.card-touch-ripple{
+  position:absolute;border-radius:50%;pointer-events:none;
+  width:8px;height:8px;
+  background:radial-gradient(circle,rgba(26,74,46,0.25) 0%,transparent 70%);
+  animation:touchRipple 0.55s cubic-bezier(0.2,0.8,0.3,1) forwards;
+  z-index:10;transform:translate(-50%,-50%);will-change:transform,opacity;
+}
+@keyframes touchRipple{
+  0%  {width:8px;height:8px;opacity:0.7;}
+  100%{width:120px;height:120px;opacity:0;}
+}
 
 .stars{display:flex;gap:2px;}
 .star{font-size:0.82rem;color:var(--c-border);}
@@ -677,14 +773,17 @@ body::before{
   position:relative;min-height:48px; /* touch target */
 }
 .profile-tab:hover{background:var(--c-cream);color:var(--c-text);}
-.profile-tab.active{background:rgba(26,74,46,0.09);color:var(--c-forest);font-weight:700;}
-[dir=rtl] .profile-tab.active{box-shadow:inset -3px 0 0 var(--c-forest);}
+.profile-tab.active{
+  background:linear-gradient(90deg,rgba(26,74,46,0.08),rgba(26,74,46,0.03));
+  color:var(--c-forest);font-weight:700;
+}
+[dir=rtl] .profile-tab.active{border-left:3px solid var(--c-forest);}
 .profile-tab-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0;}
 
 /* Profile content panels */
 .tab-panel{display:none;}
 .tab-panel.active{display:block;animation:fadeInUp 0.3s cubic-bezier(0.22,1,0.36,1) both;}
-.tab-card{background:var(--c-white);border:1px solid var(--c-border-l);border-radius:var(--r-lg);padding:28px;min-width:0;overflow:hidden;box-shadow:var(--sh-xs);}
+.tab-card{background:var(--c-white);border:1px solid var(--c-border-l);border-radius:var(--r-lg);padding:28px;min-width:0;overflow:hidden;box-shadow:var(--sh-xs);word-break:break-word;}
 .tab-card h2{font-size:1.15rem;margin-bottom:22px;color:var(--c-text);}
 
 /* Wishlist */
@@ -706,18 +805,26 @@ body::before{
 ══════════════════════════════════════════ */
 .order-card{background:var(--c-white);border:1px solid var(--c-border-l);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;transition:box-shadow var(--t-base),transform var(--t-base);animation:fadeInUp 0.4s ease both;width:100%;box-sizing:border-box;}
 .order-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px);}
-.order-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--c-cream);border-bottom:1px solid var(--c-border-l);flex-wrap:wrap;gap:8px;}
-.order-id{font-family:monospace;font-size:0.7rem;font-weight:700;color:var(--c-text);background:var(--c-white);padding:3px 8px;border-radius:var(--r-sm);border:1px solid var(--c-border);margin-left:6px;display:inline-block;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-[dir=rtl] .order-id{margin-left:0;margin-right:6px;}
-.order-date{font-size:0.72rem;color:var(--c-text-3);}
-.order-header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.order-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;background:var(--c-cream);border-bottom:1px solid var(--c-border-l);
+  flex-wrap:wrap;gap:8px;direction:rtl;
+}
+.order-header-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;}
+.order-id{
+  font-family:monospace;font-size:0.68rem;font-weight:700;color:var(--c-text);
+  background:var(--c-white);padding:3px 8px;border-radius:var(--r-sm);border:1px solid var(--c-border);
+  display:inline-block;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.order-date{font-size:0.72rem;color:var(--c-text-3);white-space:nowrap;}
+.order-header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;}
 .order-total-badge{font-weight:700;font-size:0.9rem;color:var(--c-forest);font-family:var(--f-latin);white-space:nowrap;}
 .status-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:var(--r-full);font-size:0.66rem;font-weight:700;letter-spacing:0.04em;white-space:nowrap;}
 .status-processing{background:#fef3c7;color:#92400e;}
 .status-confirmed{background:#dbeafe;color:#1e40af;}
 .status-shipped{background:#e0e7ff;color:#3730a3;}
 .status-delivered{background:#dcfce7;color:#15803d;}
-.order-progress{display:flex;align-items:flex-start;padding:14px 18px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.order-progress{display:flex;align-items:flex-start;padding:14px 18px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;direction:rtl;}
 .order-progress::-webkit-scrollbar{display:none;}
 .progress-step{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:68px;flex-shrink:0;}
 .progress-dot{width:10px;height:10px;border-radius:50%;background:var(--c-border);border:2px solid var(--c-white);box-shadow:0 0 0 2px var(--c-border);transition:all 0.35s ease;flex-shrink:0;}
@@ -733,9 +840,10 @@ body::before{
 .order-item-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;overflow:hidden;}
 .order-item-name{font-size:0.84rem;font-weight:600;color:var(--c-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .order-item-unit{font-size:0.68rem;color:var(--c-text-3);}
-.order-item-controls{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.order-item-controls{display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:nowrap;}
 .order-item-price{font-weight:700;font-size:0.84rem;color:var(--c-forest);white-space:nowrap;font-family:var(--f-latin);}
-.btn-remove-sm{width:22px;height:22px;border-radius:50%;background:rgba(239,68,68,0.09);color:#ef4444;font-size:0.6rem;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;transition:all var(--t-fast);flex-shrink:0;}
+.btn-remove-sm{width:26px;height:26px;border-radius:50%;background:rgba(239,68,68,0.09);color:#ef4444;font-size:0.65rem;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;transition:all var(--t-fast);flex-shrink:0;}
+.btn-remove-sm:hover{background:rgba(239,68,68,0.18);transform:scale(1.1);}
 .btn-remove-sm:hover{background:rgba(239,68,68,0.2);transform:scale(1.1);}
 .order-shipping{padding:10px 18px;background:var(--c-cream);font-size:0.74rem;color:var(--c-text-3);border-top:1px solid var(--c-border-l);}
 
@@ -892,9 +1000,23 @@ body::before{
   /* Profile mobile */
   .profile-layout{grid-template-columns:1fr;gap:16px;}
   .profile-sidebar{position:static;}
-  .profile-nav{display:flex;overflow-x:auto;padding:8px;gap:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .profile-nav{
+    display:flex!important;flex-direction:row!important;
+    overflow-x:auto;padding:8px;gap:5px;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  }
   .profile-nav::-webkit-scrollbar{display:none;}
-  .profile-tab{min-width:auto;white-space:nowrap;padding:10px 14px;font-size:0.82rem;box-shadow:none!important;}
+  .profile-tab{
+    min-width:max-content!important;flex-shrink:0;
+    white-space:nowrap;padding:9px 14px!important;font-size:0.83rem;
+    border-left:none!important;border-radius:var(--r-md)!important;
+    border-bottom:2px solid transparent;
+  }
+  .profile-tab.active{
+    border-left:none!important;
+    border-bottom:2px solid var(--c-forest)!important;
+    background:var(--c-mint)!important;
+  }
   .profile-stats{gap:0;}
   .tab-card{padding:18px;}
   .profile-card-header{padding:28px 16px 22px;}
@@ -930,10 +1052,108 @@ body::before{
   *{animation-duration:0.01ms!important;transition-duration:0.01ms!important;}
   .fly-clone{display:none!important;}
 }
+
+/* ══ PREMIUM ANIMATIONS v3 ══════════════════════════════════════════════ */
+
+/* Button shimmer — all interactive buttons */
+.btn-primary:hover::before,
+.btn-ghost:hover::before,
+.btn-outline:hover::before {
+  animation: btnShimmer 0.5s ease forwards;
+}
+
+/* Smooth image reveal on load */
+.product-card-img {
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.55s cubic-bezier(0.22,1,0.36,1), filter 0.4s ease;
+}
+.product-card-img.loaded { opacity: 1; }
+
+/* Badge — slow calm pulse, no spin */
+.product-badge {
+  animation: badgePulse 3.5s ease-in-out infinite;
+  transform-origin: center;
+}
+@keyframes badgePulse {
+  0%,100% { box-shadow: var(--sh-gold); transform: scale(1); }
+  50%     { box-shadow: 0 6px 24px rgba(201,168,76,0.5); transform: scale(1.04); }
+}
+
+/* Feature icon — smooth bounce, no spin */
+.feature-item:hover .feature-icon-wrap {
+  transform: scale(1.14) translateY(-3px) !important;
+  box-shadow: 0 8px 22px rgba(26,74,46,0.18) !important;
+  transition: transform 0.32s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease !important;
+}
+
+/* Product card overlay gradient — silky smooth */
+.product-card-overlay {
+  background: linear-gradient(
+    to top,
+    rgba(10,38,20,0.75) 0%,
+    rgba(20,55,32,0.3)  40%,
+    transparent         70%
+  );
+  transition: opacity 0.32s ease;
+}
+
+/* Cart badge — subtle scale on update */
+.cart-badge.bump {
+  animation: badgeBump 0.38s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes badgeBump {
+  0%  { transform: scale(1); }
+  55% { transform: scale(1.4); }
+  100%{ transform: scale(1); }
+}
+
+/* Section label line — shimmer on reveal */
+.section-label::before {
+  background: linear-gradient(90deg, var(--c-gold-d), var(--c-gold-l), var(--c-gold-d));
+  background-size: 200% 100%;
+  animation: labelShimmer 2.5s ease infinite;
+}
+@keyframes labelShimmer {
+  0%  { background-position: 200% center; }
+  100%{ background-position: -200% center; }
+}
+
+/* Nav brand logo — subtle breathe */
+.nav-logo-mark {
+  animation: logoBreathe 4s ease-in-out infinite;
+}
+@keyframes logoBreathe {
+  0%,100% { box-shadow: 0 2px 12px rgba(26,74,46,0.28), inset 0 1px 0 rgba(255,255,255,0.14); }
+  50%     { box-shadow: 0 4px 20px rgba(26,74,46,0.42), inset 0 1px 0 rgba(255,255,255,0.18); }
+}
+.nav-brand:hover .nav-logo-mark { animation: none; }
+
+/* Hero eyebrow — gentle float */
+.hero-eyebrow {
+  animation: fadeInDown 0.6s 0.1s both, heroFloat 4s 0.7s ease-in-out infinite;
+}
+@keyframes heroFloat {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-4px); }
+}
+
+/* Page enter transition — slide from bottom */
+.page.active {
+  animation: pageSlideUp 0.36s cubic-bezier(0.22,1,0.36,1) both !important;
+}
+@keyframes pageSlideUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* Scroll-to-top smooth for navigations */
+html { scroll-behavior: smooth; }
+
+/* ══ END PREMIUM ANIMATIONS ═════════════════════════════════════════════ */
 </style>
 
 <style>
-/* ═══ UPGRADES CSS (inlined) ═══ */
+/* ══ UPGRADES CSS v3 ══ */
 /* ════════════════════════════════════════════════════════════════
    TECHNOPALM — PREMIUM UPGRADE CSS v3.0
    Covers: Cart persistence UI, fly-to-cart animation, profile
@@ -1806,10 +2026,20 @@ img.loaded {
           </div>
           <h2 id="profile-name">—</h2>
           <p id="profile-email">—</p>
-          <div class="profile-stats">
-            <div class="profile-stat"><span class="profile-stat-num" id="stat-orders">0</span><span class="profile-stat-label">طلبات</span></div>
-            <div class="profile-stat"><span class="profile-stat-num" id="stat-wishlist">0</span><span class="profile-stat-label">المحفوظات</span></div>
-            <div class="profile-stat"><span class="profile-stat-num" id="stat-spent">0</span><span class="profile-stat-label">ج.م أُنفقت</span></div>
+        </div>
+        <!-- Stats strip — white bg below green header -->
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <span class="profile-stat-num" id="stat-orders">0</span>
+            <span class="profile-stat-label">طلباتي</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat-num" id="stat-wishlist">0</span>
+            <span class="profile-stat-label">المحفوظات</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat-num" id="stat-spent">0</span>
+            <span class="profile-stat-label">ج.م أُنفقت</span>
           </div>
         </div>
         <!-- Navigation tabs -->
@@ -2286,6 +2516,10 @@ const CartService = (() => {
     document.querySelectorAll('.cart-badge').forEach(el => {
       el.textContent = c;
       el.style.display = c > 0 ? 'flex' : 'none';
+      // Bump animation
+      el.classList.remove('bump');
+      void el.offsetWidth;
+      el.classList.add('bump');
     });
   };
 
@@ -2846,17 +3080,30 @@ function initProfile() {
 }
 
 function _updateProfileStats() {
-  const user = Store.getState('user');
-  const uid = user?.id;
+  const user   = Store.getState('user');
+  const uid    = user?.id;
   const orders = OrdersService.getOrders();
   const wishlist = WishlistService.get(uid);
-  const spent = orders.reduce((s,o) => s + o.total, 0);
+  // Total spent in EGP
+  const spentUSD = orders.reduce((s,o) => s + (o.total||0), 0);
+  const spentEGP = Currency.toEGP(spentUSD);
+
   const statOrders = document.getElementById('stat-orders');
   const statWish   = document.getElementById('stat-wishlist');
   const statSpent  = document.getElementById('stat-spent');
+  const statLabel  = statSpent?.closest('.profile-stat')?.querySelector('.profile-stat-label');
+
   if (statOrders) statOrders.textContent = orders.length;
   if (statWish)   statWish.textContent   = wishlist.length;
-  if (statSpent)  statSpent.textContent  = Currency.toEGP(spent).toLocaleString('en-US');
+  if (statSpent) {
+    // Show compact: if >= 1000 show "1.2k", else show full number
+    if (spentEGP >= 1000) {
+      statSpent.textContent = (spentEGP/1000).toFixed(1).replace('.0','') + 'k';
+    } else {
+      statSpent.textContent = spentEGP.toLocaleString('en-US');
+    }
+  }
+  if (statLabel) statLabel.textContent = 'ج.م أُنفقت';
 }
 
 function _renderOrders() {
@@ -2866,8 +3113,14 @@ function _renderOrders() {
   container.innerHTML = orders.map(order => `
     <div class="order-card" data-order-id="${order.id}">
       <div class="order-header">
-        <div><span class="order-id">${order.id}</span><span class="order-date">${UI.fmtDate(order.createdAt)}</span></div>
-        <div class="order-header-right">${UI.statusBadge(order.status)}<span class="order-total-badge">${Currency.fmt(order.total)}</span></div>
+        <div class="order-header-left">
+          <span class="order-id">${order.id}</span>
+          <span class="order-date">${UI.fmtDate(order.createdAt)}</span>
+        </div>
+        <div class="order-header-right">
+          ${UI.statusBadge(order.status)}
+          <span class="order-total-badge">${Currency.fmt(order.total)}</span>
+        </div>
       </div>
       <div class="order-progress">
         ${OrdersService.STATUSES.map((s,i) => `
@@ -2975,15 +3228,35 @@ function _handleCardClick(e) {
   const addBtn = e.target.closest('[data-action="add-cart"]');
   if (addBtn) {
     e.preventDefault(); e.stopPropagation();
+    if (addBtn.classList.contains('added') || addBtn.classList.contains('resetting')) return;
     const p = ProductsService.getById(addBtn.dataset.id);
-    if (p) {
-      // Trigger fly-to-cart animation from the card image
-      CartService.addItem(p, 1, addBtn);
-      addBtn.classList.add('adding');
-      addBtn.textContent = '✓';
-      addBtn.style.background = 'var(--c-success)';
-      setTimeout(() => { addBtn.classList.remove('adding'); addBtn.textContent = '+'; addBtn.style.background = ''; }, 1600);
+    if (!p) return;
+
+    // 1. Fly animation from card image
+    const card  = addBtn.closest('.product-card');
+    const imgEl = card?.querySelector('.product-card-img');
+    if (typeof FlyToCart !== 'undefined' && imgEl) {
+      FlyToCart.fly(imgEl, () => CartService.addItem(p, 1));
+    } else {
+      CartService.addItem(p, 1);
     }
+
+    // 2. Button state: ADDED (green ✓)
+    const originalText = addBtn.textContent;
+    addBtn.textContent = '✓';
+    addBtn.classList.add('added');
+
+    // 3. After 1.4s → RESETTING (smooth return)
+    setTimeout(() => {
+      addBtn.classList.remove('added');
+      addBtn.classList.add('resetting');
+      addBtn.textContent = originalText || '+';
+      // 4. After transition completes → fully CLEAN
+      setTimeout(() => {
+        addBtn.classList.remove('resetting');
+        addBtn.style.cssText = '';
+      }, 420);
+    }, 1400);
     return;
   }
   // Navigate to product detail
@@ -3042,26 +3315,34 @@ function _initCardEffects() {
       const r = card.getBoundingClientRect();
       const x = e.clientX-r.left, y = e.clientY-r.top;
       const cx = r.width/2, cy = r.height/2;
-      const tiltX = ((y-cy)/cy)*7, tiltY = ((cx-x)/cx)*7;
+      const tiltX = ((y-cy)/cy)*4, tiltY = ((cx-x)/cx)*4;
       const inner = card.querySelector('.product-card-inner');
-      if (inner) inner.style.transform = `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateZ(6px)`;
+      if (inner) inner.style.transform = `perspective(900px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateZ(4px)`;
       if (shine) { shine.style.setProperty('--mx',(x/r.width*100)+'%'); shine.style.setProperty('--my',(y/r.height*100)+'%'); }
     });
     card.addEventListener('mouseleave', () => {
       if (isMobile()) return;
       const inner = card.querySelector('.product-card-inner');
-      if (inner) { inner.style.transition='transform 0.55s cubic-bezier(0.22,1,0.36,1)'; inner.style.transform='perspective(700px) rotateX(0) rotateY(0) translateZ(0)'; }
+      if (inner) {
+        inner.style.transition = 'transform 0.5s cubic-bezier(0.22,1,0.36,1)';
+        inner.style.transform  = 'perspective(900px) rotateX(0) rotateY(0) translateZ(0)';
+      }
     });
     card.addEventListener('mouseenter', () => {
       if (isMobile()) return;
       const inner = card.querySelector('.product-card-inner');
-      if (inner) inner.style.transition='transform 0.18s ease';
+      if (inner) inner.style.transition = 'transform 0.15s ease';
     });
     card.addEventListener('touchstart', e => {
-      const touch = e.touches[0]; const rect = card.getBoundingClientRect();
-      const ring = document.createElement('div'); ring.className='card-touch-ring';
-      ring.style.left = (touch.clientX-rect.left)+'px'; ring.style.top = (touch.clientY-rect.top)+'px';
-      card.appendChild(ring); setTimeout(()=>ring.remove(), 700);
+      const touch = e.touches[0];
+      const rect  = card.querySelector('.product-card-inner')?.getBoundingClientRect() || card.getBoundingClientRect();
+      const ripple = document.createElement('div');
+      ripple.className = 'card-touch-ripple';
+      ripple.style.left = (touch.clientX - rect.left)  + 'px';
+      ripple.style.top  = (touch.clientY - rect.top)   + 'px';
+      const inner = card.querySelector('.product-card-inner');
+      (inner || card).appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
     }, { passive:true });
   });
 }
@@ -3308,7 +3589,7 @@ console.log('%c🌴 Technopalm v3 Ready', 'color:#c9a84c;font-weight:bold;font-s
 </script>
 
 <script>
-/* ═══ UPGRADES JS (inlined) ═══ */
+/* ══ UPGRADES JS v3 ══ */
 /**
  * TECHNOPALM — PREMIUM UPGRADES JS v3.0
  * Covers:

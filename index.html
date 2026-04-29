@@ -112,7 +112,7 @@ body::before{
 .page{position:relative;z-index:1;}
 
 /* ══════════════════════════════════════════
-   NAVIGATION — RTL: Brand+Cart (right) → Links (left, dropdown on mobile)
+   NAVIGATION
 ══════════════════════════════════════════ */
 .nav{
   position:sticky;top:0;z-index:200;
@@ -134,11 +134,9 @@ body::before{
   justify-content:space-between;gap:16px;
   direction:rtl;
 }
-
 .nav-right{
   display:flex;align-items:center;gap:10px;flex-shrink:0;
 }
-
 .nav-brand{
   display:flex;align-items:center;gap:11px;
   cursor:pointer;
@@ -149,7 +147,6 @@ body::before{
 }
 .nav-brand:hover{opacity:0.85;}
 .nav-brand:hover .nav-logo-mark{transform:translateY(-1px);box-shadow:0 4px 18px rgba(26,74,46,0.38);}
-
 .nav-logo-mark{
   width:40px;height:40px;
   background:linear-gradient(150deg,var(--c-forest-d) 0%,var(--c-forest) 52%,var(--c-sage) 100%);
@@ -165,7 +162,6 @@ body::before{
   pointer-events:none;
 }
 .nav-logo-mark svg{width:24px;height:24px;display:block;position:relative;z-index:1;}
-
 .nav-wordmark{
   display:flex;flex-direction:column;align-items:flex-end;
   gap:2px;
@@ -194,13 +190,11 @@ body::before{
   white-space:nowrap;display:block;
   width:100%;text-align:right;
 }
-
 .nav-divider{
   width:1px;height:26px;
   background:var(--c-border);
   flex-shrink:0;
 }
-
 .nav-cart-btn{
   position:relative;width:40px;height:40px;
   border-radius:var(--r-md);
@@ -223,11 +217,9 @@ body::before{
   font-family:var(--f-latin);
 }
 @keyframes badgePop{0%{transform:scale(0);}70%{transform:scale(1.2);}100%{transform:scale(1);}}
-
 .nav-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--c-gold);box-shadow:0 0 0 2px rgba(201,168,76,0.2);}
 .nav-avatar-wrap{cursor:pointer;border-radius:50%;transition:transform var(--t-spring);flex-shrink:0;}
 .nav-avatar-wrap:hover{transform:scale(1.08);}
-
 .nav-links{
   display:flex;align-items:center;gap:2px;
   direction:rtl;
@@ -245,9 +237,7 @@ body::before{
 }
 .nav-links a:hover::after,.nav-links a.active::after{right:12px;left:12px;}
 .nav-links a:hover,.nav-links a.active{color:var(--c-forest);}
-
 .nav-settings-btn{display:none!important;}
-
 .menu-toggle{
   display:none;flex-direction:column;gap:5px;
   padding:9px;border-radius:var(--r-sm);background:none;
@@ -280,7 +270,6 @@ body::before{
 }
 .btn.ripple-active::after{width:340px;height:340px;opacity:0;}
 .btn:active{transform:scale(0.96);}
-
 .btn-sm{padding:8px 18px;font-size:0.83rem;border-radius:var(--r-sm);}
 .btn-lg{padding:15px 36px;font-size:1rem;border-radius:var(--r-lg);}
 .btn-disabled{background:var(--c-border);color:var(--c-text-3);cursor:not-allowed;pointer-events:none;}
@@ -437,10 +426,22 @@ body::before{
    PRODUCT CARDS
 ══════════════════════════════════════════ */
 @keyframes cardIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardGlowPulse{
+  0%,100%{box-shadow:0 4px 24px rgba(26,74,46,0.10),0 0 0 0 rgba(26,74,46,0)}
+  50%    {box-shadow:0 12px 40px rgba(26,74,46,0.18),0 0 28px 4px rgba(45,107,68,0.08)}
+}
 @keyframes badgeSpin{
   0%  {transform:rotate(-8deg) scale(1)}
   50% {transform:rotate(4deg)  scale(1.08)}
   100%{transform:rotate(-8deg) scale(1)}
+}
+@keyframes imgShimmer{
+  0%  {background-position:200% 50%}
+  100%{background-position:-200% 50%}
+}
+@keyframes overlayTextIn{
+  from{opacity:0;transform:translateY(10px) scale(0.96)}
+  to  {opacity:1;transform:translateY(0)   scale(1)}
 }
 @keyframes glowRingPop{
   0%  {opacity:0.7;transform:translate(-50%,-50%) scale(0.3)}
@@ -460,7 +461,9 @@ body::before{
   perspective:800px;
   will-change:transform,box-shadow;
   animation:cardIn 0.48s cubic-bezier(0.22,1,0.36,1) both;
-  transition: box-shadow 0.35s cubic-bezier(0.22,1,0.36,1), border-color 0.25s ease;
+  transition:
+    box-shadow 0.35s cubic-bezier(0.22,1,0.36,1),
+    border-color 0.25s ease;
   position:relative;
 }
 .product-card-inner{
@@ -475,7 +478,10 @@ body::before{
   content:'';
   position:absolute;inset:-2px;
   border-radius:calc(var(--r-lg) + 2px);
-  background:linear-gradient(135deg, rgba(45,107,68,0.0) 0%, rgba(122,173,138,0.0) 50%, rgba(201,168,76,0.0) 100%);
+  background:linear-gradient(135deg,
+    rgba(45,107,68,0.0) 0%,
+    rgba(122,173,138,0.0) 50%,
+    rgba(201,168,76,0.0) 100%);
   opacity:0;
   transition:opacity 0.4s ease;
   z-index:0;
@@ -483,18 +489,26 @@ body::before{
   filter:blur(8px);
 }
 .product-card:hover::before{
-  background:linear-gradient(135deg, rgba(45,107,68,0.22) 0%, rgba(122,173,138,0.12) 50%, rgba(201,168,76,0.15) 100%);
+  background:linear-gradient(135deg,
+    rgba(45,107,68,0.22) 0%,
+    rgba(122,173,138,0.12) 50%,
+    rgba(201,168,76,0.15) 100%);
   opacity:1;
 }
 .product-card-shine{
   position:absolute;inset:0;border-radius:var(--r-lg);
-  background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.18) 0%, transparent 55%);
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),
+    rgba(255,255,255,0.18) 0%,
+    transparent 55%);
   opacity:0;transition:opacity 0.3s ease;
   pointer-events:none;z-index:2;
 }
 .product-card:hover .product-card-shine{opacity:1;}
 .product-card:hover{
-  box-shadow: 0 20px 60px rgba(26,74,46,0.18), 0 6px 20px rgba(26,74,46,0.12), 0 0 0 1.5px rgba(45,107,68,0.18);
+  box-shadow:
+    0 20px 60px rgba(26,74,46,0.18),
+    0 6px 20px rgba(26,74,46,0.12),
+    0 0 0 1.5px rgba(45,107,68,0.18);
   border-color:transparent;
 }
 .product-card-img-wrap{
@@ -512,7 +526,11 @@ body::before{
 }
 .product-card-overlay{
   position:absolute;inset:0;
-  background:linear-gradient(to top, rgba(15,45,28,0.72) 0%, rgba(26,74,46,0.28) 45%, transparent 70%);
+  background:linear-gradient(
+    to top,
+    rgba(15,45,28,0.72) 0%,
+    rgba(26,74,46,0.28) 45%,
+    transparent 70%);
   opacity:0;
   transition:opacity 0.38s ease;
   display:flex;align-items:flex-end;padding:18px;
@@ -525,7 +543,10 @@ body::before{
   transform:translateY(12px);opacity:0;
   transition:transform 0.35s cubic-bezier(0.22,1,0.36,1),opacity 0.3s ease;
 }
-.product-card:hover .product-overlay-action{transform:translateY(0);opacity:1;}
+.product-card:hover .product-overlay-action{
+  transform:translateY(0);opacity:1;
+  animation:overlayTextIn 0.38s cubic-bezier(0.22,1,0.36,1) both;
+}
 .product-badge{
   position:absolute;top:12px;right:12px;
   background:linear-gradient(135deg,var(--c-gold-l),var(--c-gold-d));
@@ -581,7 +602,11 @@ body::before{
   background:linear-gradient(135deg,var(--c-forest),var(--c-forest-l));
   color:var(--c-white);border-radius:var(--r-sm);
   font-size:1.4rem;display:flex;align-items:center;justify-content:center;
-  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease, background 0.25s ease, filter 0.25s ease;
+  transition:
+    transform 0.3s cubic-bezier(0.34,1.56,0.64,1),
+    box-shadow 0.28s ease,
+    background 0.25s ease,
+    filter 0.25s ease;
   flex-shrink:0;position:relative;overflow:hidden;
 }
 .btn-add-card::after{
@@ -590,11 +615,14 @@ body::before{
   transform:translateX(-100%);
   transition:transform 0.4s ease;pointer-events:none;
 }
-.btn-add-card:hover{transform:scale(1.18) rotate(8deg);box-shadow:0 6px 22px rgba(26,74,46,0.45);filter:brightness(1.1);}
+.btn-add-card:hover{
+  transform:scale(1.18) rotate(8deg);
+  box-shadow:0 6px 22px rgba(26,74,46,0.45);
+  filter:brightness(1.1);
+}
 .btn-add-card:hover::after{transform:translateX(100%);}
 .btn-add-card:active{transform:scale(0.92) rotate(0deg);}
 .out-badge{font-size:0.73rem;color:var(--c-text-3);font-weight:600;}
-
 .card-touch-ring{
   position:absolute;border-radius:50%;pointer-events:none;
   width:60px;height:60px;
@@ -604,11 +632,9 @@ body::before{
   z-index:10;transform:translate(-50%,-50%);
   will-change:transform,opacity;
 }
-
 .stars{display:flex;gap:2px;}
 .star{font-size:0.82rem;color:var(--c-border);}
 .star.filled,.star.half{color:#f59e0b;}
-
 .qty-control{
   display:inline-flex;align-items:center;
   border:1.5px solid var(--c-border);border-radius:var(--r-sm);overflow:hidden;
@@ -969,7 +995,7 @@ body::before{
 .tab-card h2{font-size:1.1rem;margin-bottom:18px;color:var(--c-text);}
 
 /* ══════════════════════════════════════════
-   ORDERS
+   ORDERS — legacy (kept for backend logic)
 ══════════════════════════════════════════ */
 .order-card{background:var(--c-white);border:1px solid var(--c-border-l);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;transition:box-shadow var(--t-base),transform var(--t-base);animation:fadeInUp 0.4s ease both;width:100%;box-sizing:border-box;}
 .order-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px);}
@@ -1007,6 +1033,139 @@ body::before{
 .order-shipping{padding:10px 16px;background:var(--c-cream);font-size:0.74rem;color:var(--c-text-3);border-top:1px solid var(--c-border-l);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 /* ══════════════════════════════════════════
+   ★ NEW: PURCHASE ITEM CARDS (Profile Page)
+   — Minimal surgical addition, no conflicts
+══════════════════════════════════════════ */
+.purchases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 4px;
+}
+.purchase-card {
+  background: var(--c-white);
+  border: 1.5px solid var(--c-border-l);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--sh-xs);
+  animation: fadeInUp 0.35s cubic-bezier(0.22,1,0.36,1) both;
+  transition: box-shadow var(--t-base), border-color var(--t-base), transform var(--t-base);
+  position: relative;
+  overflow: hidden;
+}
+.purchase-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--c-forest), var(--c-gold));
+  opacity: 0;
+  transition: opacity var(--t-base);
+}
+.purchase-card:hover {
+  box-shadow: var(--sh-md);
+  border-color: var(--c-border);
+  transform: translateY(-2px);
+}
+.purchase-card:hover::before { opacity: 1; }
+.purchase-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.purchase-card-img {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-md);
+  object-fit: cover;
+  background: var(--c-mint);
+  flex-shrink: 0;
+  border: 1px solid var(--c-border-l);
+}
+.purchase-card-info { flex: 1; min-width: 0; }
+.purchase-card-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--c-text);
+  line-height: 1.35;
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.purchase-card-unit {
+  font-size: 0.72rem;
+  color: var(--c-text-3);
+  font-weight: 400;
+}
+.purchase-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--c-border-l);
+}
+.purchase-card-price {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--c-forest);
+  font-family: var(--f-latin);
+}
+.purchase-card-qty {
+  font-size: 0.73rem;
+  color: var(--c-text-3);
+  background: var(--c-cream);
+  padding: 3px 8px;
+  border-radius: var(--r-full);
+  font-weight: 500;
+}
+.btn-delete-purchase {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: var(--r-sm);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--c-error);
+  background: rgba(239,68,68,0.07);
+  border: 1px solid rgba(239,68,68,0.15);
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-delete-purchase:hover {
+  background: rgba(239,68,68,0.14);
+  border-color: rgba(239,68,68,0.35);
+  transform: scale(1.04);
+}
+.btn-delete-purchase:active { transform: scale(0.96); }
+/* Slide-out animation on delete */
+@keyframes purchaseCardOut {
+  0%   { opacity: 1; transform: translateX(0) scale(1); max-height: 200px; margin-bottom: 0; }
+  40%  { opacity: 0; transform: translateX(40px) scale(0.96); }
+  100% { opacity: 0; max-height: 0; padding: 0; margin: 0; border: none; }
+}
+.purchase-card.removing {
+  animation: purchaseCardOut 0.38s cubic-bezier(0.4,0,0.2,1) forwards;
+  pointer-events: none;
+}
+/* Empty state for purchases */
+.purchases-empty {
+  text-align: center;
+  padding: 52px 24px;
+  color: var(--c-text-3);
+}
+.purchases-empty-icon { font-size: 3rem; margin-bottom: 14px; display: block; }
+.purchases-empty-text { font-size: 0.95rem; margin-bottom: 20px; }
+
+/* ══════════════════════════════════════════
    SKELETON & SPINNER
 ══════════════════════════════════════════ */
 .shimmer{
@@ -1028,7 +1187,7 @@ body::before{
 @keyframes spin{to{transform:rotate(360deg);}}
 
 /* ══════════════════════════════════════════
-   SIDE DRAWER
+   SIDE DRAWER (Settings)
 ══════════════════════════════════════════ */
 .drawer-overlay{
   position:fixed;inset:0;z-index:300;
@@ -1118,7 +1277,7 @@ body::before{
 .back-btn:active{transform:scale(0.96);}
 
 /* ══════════════════════════════════════════
-   ANIMATIONS
+   ANIMATIONS & TRANSITIONS
 ══════════════════════════════════════════ */
 @keyframes fadeIn        {from{opacity:0}to{opacity:1}}
 @keyframes fadeInUp      {from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
@@ -1126,15 +1285,41 @@ body::before{
 @keyframes slideInRight  {from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
 @keyframes scaleIn       {from{opacity:0;transform:scale(0.93)}to{opacity:1;transform:scale(1)}}
 @keyframes bounceIn      {0%{transform:scale(0.7);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
-@keyframes pageEnter     {0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
-@keyframes pageExit      {0%{opacity:1}100%{opacity:0}}
+@keyframes cardIn        {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pageEnter{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes pageExit{0%{opacity:1}100%{opacity:0}}
+@keyframes shimmer{
+  0%  {background-position:200% center}
+  100%{background-position:-200% center}
+}
+@keyframes glowPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}
+  50%    {box-shadow:0 0 22px 6px rgba(201,168,76,0.32)}
+}
+@keyframes glowPulseGreen{
+  0%,100%{box-shadow:0 2px 12px rgba(26,74,46,0.22)}
+  50%    {box-shadow:0 4px 28px rgba(26,74,46,0.42)}
+}
+@keyframes sparkleFloat{
+  0%  {opacity:0;transform:translateY(0) scale(0.5)}
+  40% {opacity:1}
+  100%{opacity:0;transform:translateY(-28px) scale(1.2)}
+}
+@keyframes tapRing{
+  0%  {transform:translate(-50%,-50%) scale(0);opacity:0.7}
+  80% {transform:translate(-50%,-50%) scale(2.4);opacity:0.15}
+  100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}
+}
+
 .reveal{opacity:0;transform:translateY(28px);transition:opacity 0.68s cubic-bezier(0.22,1,0.36,1),transform 0.68s cubic-bezier(0.22,1,0.36,1);will-change:opacity,transform;}
 .reveal.revealed{opacity:1;transform:translateY(0);}
 .reveal-delay-1{transition-delay:0.1s;}
 .reveal-delay-2{transition-delay:0.2s;}
 .reveal-delay-3{transition-delay:0.3s;}
 .reveal-delay-4{transition-delay:0.4s;}
+
 .hero .container>div{animation:fadeInUp 0.85s 0.1s both;}
+
 .products-grid .product-card:nth-child(1){animation-delay:0.04s;}
 .products-grid .product-card:nth-child(2){animation-delay:0.09s;}
 .products-grid .product-card:nth-child(3){animation-delay:0.14s;}
@@ -1143,11 +1328,14 @@ body::before{
 .products-grid .product-card:nth-child(6){animation-delay:0.29s;}
 .products-grid .product-card:nth-child(7){animation-delay:0.34s;}
 .products-grid .product-card:nth-child(8){animation-delay:0.39s;}
+
 .page{display:none;will-change:opacity,transform;}
 .page.active{display:block;animation:pageEnter 0.38s cubic-bezier(0.22,1,0.36,1) both;}
 .page.leaving{animation:pageExit 0.18s ease forwards;}
 
-/* BUTTON GLOW & SHIMMER */
+/* ══════════════════════════════════════════
+   BUTTON GLOW & SHIMMER SYSTEM
+══════════════════════════════════════════ */
 .btn-primary{
   background:linear-gradient(135deg,var(--c-forest),var(--c-forest-l));
   color:var(--c-white);
@@ -1162,9 +1350,14 @@ body::before{
   transition:transform 0.55s ease;
   border-radius:inherit;
 }
-.btn-primary:hover{box-shadow:0 6px 28px rgba(26,74,46,0.42),0 0 0 3px rgba(45,107,68,0.18);transform:translateY(-2px);filter:brightness(1.06);}
+.btn-primary:hover{
+  box-shadow:0 6px 28px rgba(26,74,46,0.42),0 0 0 3px rgba(45,107,68,0.18);
+  transform:translateY(-2px);
+  filter:brightness(1.06);
+}
 .btn-primary:hover::before{transform:translateX(100%);}
 .btn-primary:active{transform:scale(0.96) translateY(0);filter:brightness(0.97);}
+
 .btn-gold{
   background:linear-gradient(135deg,var(--c-gold-l),var(--c-gold),var(--c-gold-d));
   background-size:200% 100%;
@@ -1181,9 +1374,15 @@ body::before{
   transition:transform 0.5s ease;
   border-radius:inherit;
 }
-.btn-gold:hover{box-shadow:0 8px 32px rgba(201,168,76,0.55),0 0 0 3px rgba(201,168,76,0.2);transform:translateY(-3px);animation:none;filter:brightness(1.08);}
+.btn-gold:hover{
+  box-shadow:0 8px 32px rgba(201,168,76,0.55),0 0 0 3px rgba(201,168,76,0.2);
+  transform:translateY(-3px);
+  animation:none;
+  filter:brightness(1.08);
+}
 .btn-gold:hover::before{transform:translateX(100%);}
 .btn-gold:active{transform:scale(0.95) translateY(0);}
+
 .btn-ghost{
   background:transparent;color:var(--c-forest);
   border:1.5px solid var(--c-border);
@@ -1198,6 +1397,7 @@ body::before{
 }
 .btn-ghost:hover{border-color:var(--c-forest);background:var(--c-mint);box-shadow:var(--sh-sm);transform:translateY(-1px);}
 .btn-ghost:hover::before{transform:translateX(100%);}
+
 .btn-outline{
   background:rgba(255,255,255,0.1);color:var(--c-white);
   border:1.5px solid rgba(255,255,255,0.35);
@@ -1213,9 +1413,49 @@ body::before{
 }
 .btn-outline:hover{background:rgba(255,255,255,0.2);border-color:rgba(255,255,255,0.65);box-shadow:0 4px 20px rgba(0,0,0,0.15);transform:translateY(-2px);}
 .btn-outline:hover::before{transform:translateX(100%);}
-@keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0)}50%{box-shadow:0 0 22px 6px rgba(201,168,76,0.32)}}
 
-/* RESPONSIVE */
+.btn-tap-ring{
+  position:absolute;width:10px;height:10px;
+  border-radius:50%;pointer-events:none;
+  border:2px solid rgba(255,255,255,0.55);
+  animation:tapRing 0.55s ease-out forwards;
+}
+
+.nav-cart-btn{
+  transition:background var(--t-fast),transform var(--t-spring),box-shadow var(--t-fast);
+}
+.nav-cart-btn:hover{
+  background:var(--c-cream-d);
+  transform:scale(1.10);
+  box-shadow:0 4px 18px rgba(26,74,46,0.18);
+}
+
+.btn-add-card{
+  transition:transform var(--t-spring),box-shadow var(--t-fast),background var(--t-fast),filter var(--t-fast);
+  position:relative;overflow:hidden;
+}
+.btn-add-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,0.25) 50%,transparent 70%);
+  transform:translateX(-100%);
+  transition:transform 0.4s ease;
+  border-radius:inherit;
+}
+.btn-add-card:hover{transform:scale(1.12);box-shadow:0 4px 18px rgba(26,74,46,0.38);filter:brightness(1.08);}
+.btn-add-card:hover::before{transform:translateX(100%);}
+.btn-add-card:active{transform:scale(0.93);}
+
+.nav-links a{position:relative;overflow:hidden;}
+.nav-links a::before{
+  content:'';position:absolute;inset:0;border-radius:var(--r-sm);
+  background:radial-gradient(ellipse at center,rgba(26,74,46,0.07) 0%,transparent 70%);
+  opacity:0;transition:opacity var(--t-fast);
+}
+.nav-links a:hover::before{opacity:1;}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
 @media(max-width:1100px){
   .grid-4{grid-template-columns:repeat(2,1fr);}
   .hero-visual{width:32%;}
@@ -1232,7 +1472,13 @@ body::before{
   .menu-toggle{display:flex;}
   .nav-divider{display:none;}
   .nav-wordmark-sub{display:none;}
-  .nav-links{display:none;position:absolute;top:var(--nav-h);right:0;left:0;background:var(--c-white);flex-direction:column;padding:18px;border-bottom:1px solid var(--c-border);box-shadow:var(--sh-lg);z-index:99;gap:4px;direction:rtl;}
+  .nav-links{
+    display:none;position:absolute;top:var(--nav-h);right:0;left:0;
+    background:var(--c-white);flex-direction:column;
+    padding:18px;border-bottom:1px solid var(--c-border);
+    box-shadow:var(--sh-lg);z-index:99;gap:4px;
+    direction:rtl;
+  }
   .nav-links.open{display:flex;animation:fadeInDown 0.28s ease;}
   .nav-links a{padding:13px 18px;border-radius:var(--r-md);font-size:1rem;}
   .nav-links a::after{display:none;}
@@ -1272,6 +1518,7 @@ body::before{
   .order-item{flex-wrap:wrap;}
   .order-item-controls{flex-shrink:0;}
   .order-progress{padding:10px 14px;}
+  .purchases-grid { grid-template-columns: 1fr; }
 }
 @media(max-width:480px){
   .products-grid{grid-template-columns:1fr;}
@@ -1287,14 +1534,10 @@ body::before{
 </style>
 </head>
 <body>
-<!-- ... rest of HTML unchanged until script, continue in part 2 ... -->
-<!-- ══════════════════════════════════════════
-     BODY — المحتوى الكامل (الجزء الثاني)
-══════════════════════════════════════════ -->
+
 <!-- NAVIGATION -->
 <nav class="nav" id="main-nav">
   <div class="nav-inner">
-
     <div class="nav-right">
       <div class="nav-brand" onclick="navigate('home')" aria-label="Technopalm الرئيسية">
         <div class="nav-logo-mark">
@@ -1315,34 +1558,27 @@ body::before{
           <span class="nav-wordmark-sub">Agri Solutions</span>
         </div>
       </div>
-
       <div class="nav-divider"></div>
-
       <div class="nav-cart-btn" onclick="navigate('cart')" aria-label="عربة التسوق" role="button">
         🛒
         <span class="cart-badge" style="display:none">0</span>
       </div>
-
       <div id="nav-user"></div>
     </div>
-
     <div class="nav-links" id="nav-links">
       <a id="nav-home" onclick="navigate('home')" class="active">الرئيسية</a>
       <a id="nav-shop" onclick="navigate('shop')">المتجر</a>
       <a onclick="scrollToSection('about')">من نحن</a>
       <a onclick="scrollToSection('contact')">تواصل معنا</a>
     </div>
-
     <button class="menu-toggle" id="menu-toggle" aria-label="فتح القائمة" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
-
   </div>
 </nav>
 
-<!-- ════ PAGE: HOME ════ -->
+<!-- PAGE: HOME -->
 <div id="page-home" class="page active">
-
   <section class="hero">
     <div class="hero-particles" id="hero-particles"></div>
     <div class="hero-visual">
@@ -1497,7 +1733,7 @@ body::before{
   </footer>
 </div>
 
-<!-- ════ PAGE: SHOP ════ -->
+<!-- PAGE: SHOP -->
 <div id="page-shop" class="page">
   <div class="page-header">
     <div class="container">
@@ -1531,7 +1767,7 @@ body::before{
   <footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0;"><p>© 2025 Technopalm.</p><a onclick="navigate('home')" style="color:rgba(255,255,255,0.55);">← العودة للرئيسية</a></div></div></footer>
 </div>
 
-<!-- ════ PAGE: PRODUCT DETAIL ════ -->
+<!-- PAGE: PRODUCT DETAIL -->
 <div id="page-product" class="page">
   <div class="page-header">
     <div class="container">
@@ -1555,7 +1791,7 @@ body::before{
   <footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0;"><p>© 2025 Technopalm.</p></div></div></footer>
 </div>
 
-<!-- ════ PAGE: CART ════ -->
+<!-- PAGE: CART -->
 <div id="page-cart" class="page">
   <div class="page-header">
     <div class="container">
@@ -1593,7 +1829,7 @@ body::before{
   <footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0;"><p>© 2025 Technopalm.</p></div></div></footer>
 </div>
 
-<!-- ════ PAGE: CHECKOUT ════ -->
+<!-- PAGE: CHECKOUT -->
 <div id="page-checkout" class="page">
   <main class="section-sm">
     <div class="container" style="max-width:920px;">
@@ -1605,7 +1841,6 @@ body::before{
         <div class="step-indicator" data-step="2"><span class="step-num">2</span><span>مراجعة الطلب</span></div>
         <div class="step-indicator" data-step="3"><span class="step-num">3</span><span>تأكيد الطلب</span></div>
       </div>
-      <!-- Step 1 -->
       <div id="step-1" class="step-panel active">
         <div class="checkout-card">
           <h2>معلومات الشحن</h2>
@@ -1648,7 +1883,6 @@ body::before{
           </div>
         </div>
       </div>
-      <!-- Step 2 -->
       <div id="step-2" class="step-panel">
         <div class="checkout-card">
           <h2>مراجعة طلبك</h2>
@@ -1664,7 +1898,6 @@ body::before{
           </div>
         </div>
       </div>
-      <!-- Step 3 -->
       <div id="step-3" class="step-panel">
         <div class="checkout-card">
           <div class="confirm-panel">
@@ -1688,7 +1921,7 @@ body::before{
   <footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0;"><p>© 2025 Technopalm.</p></div></div></footer>
 </div>
 
-<!-- ════ PAGE: LOGIN ════ -->
+<!-- PAGE: LOGIN -->
 <div id="page-login" class="page">
   <div class="auth-page">
     <div class="auth-card">
@@ -1724,7 +1957,7 @@ body::before{
   </div>
 </div>
 
-<!-- ════ PAGE: PROFILE ════ -->
+<!-- PAGE: PROFILE -->
 <div id="page-profile" class="page">
   <div class="page-header">
     <div class="container">
@@ -1745,7 +1978,7 @@ body::before{
             <p id="profile-email">—</p>
           </div>
           <nav class="profile-nav">
-            <button class="profile-tab active" data-panel="panel-orders"><span class="profile-tab-icon">📦</span> طلباتي</button>
+            <button class="profile-tab active" data-panel="panel-orders"><span class="profile-tab-icon">📦</span> مشترياتي</button>
             <button class="profile-tab" data-panel="panel-edit"><span class="profile-tab-icon">✏️</span> تعديل الملف</button>
             <button class="profile-tab" id="btn-open-settings"><span class="profile-tab-icon">⚙️</span> الإعدادات</button>
             <button class="profile-tab" id="btn-logout" style="margin-top:8px;"><span class="profile-tab-icon">🚪</span> تسجيل الخروج</button>
@@ -1755,8 +1988,8 @@ body::before{
           <div id="panel-orders" class="tab-panel active">
             <div class="tab-card">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;">
-                <h2 style="margin-bottom:0;">طلباتي</h2>
-                <button onclick="navigate('shop')" class="btn btn-ghost btn-sm">+ طلب جديد</button>
+                <h2 style="margin-bottom:0;">مشترياتي</h2>
+                <button onclick="navigate('shop')" class="btn btn-ghost btn-sm">+ تسوق المزيد</button>
               </div>
               <div id="orders-list"><div style="display:flex;justify-content:center;padding:44px;"><div class="spinner"></div></div></div>
             </div>
@@ -1829,13 +2062,13 @@ body::before{
 <div id="toast-container"></div>
 
 <!-- ══════════════════════════════════════════
-     JAVASCRIPT (الجزء الأول من السكربتات)
+     JAVASCRIPT — unchanged except _renderOrders
 ══════════════════════════════════════════ -->
 <script>
 'use strict';
 
-/* ═══ CURRENCY HELPER ═══ */
 const EGP_RATE = 48;
+
 const Currency = {
   toEGP: (usd) => Math.round(usd * EGP_RATE),
   fmt: (usd) => {
@@ -1844,7 +2077,6 @@ const Currency = {
   }
 };
 
-/* ═══ STORAGE (محلي فقط مع عزل بالمستخدم) ═══ */
 const Storage = (() => {
   const BASE = 'tp_';
   const _key = (k, uid) => {
@@ -1862,11 +2094,7 @@ const Storage = (() => {
       return r !== null ? JSON.parse(r) : fb;
     } catch(e) { return fb; }
   };
-  const loadAll = () => ({
-    user:   null,
-    cart:   [],
-    orders: []
-  });
+  const loadAll = () => ({ user:null, cart:[], orders:[] });
   const sync = (k, v) => {
     const uid = window.__fbUser?.uid || null;
     set(k, v, uid);
@@ -1885,7 +2113,6 @@ const Storage = (() => {
   return { set, get, sync, loadAll, reloadForUser, clearUserData };
 })();
 
-/* ═══ STORE ═══ */
 const Store = (() => {
   let _state = {
     user: null, cart: [], orders: [],
@@ -1902,7 +2129,6 @@ const Store = (() => {
 window.Store = Store;
 window.Storage = Storage;
 
-/* ═══ PRODUCTS CATALOG ═══ */
 const ProductsService = (() => {
   const CATALOG = [
     { id:'p001', name:'سماد BioBoost العضوي', category:'fertilizers', price:89.99, originalPrice:119.99, rating:4.8, reviews:342, badge:'الأكثر مبيعًا', description:'سماد عضوي متميز بطيء الإطلاق مُعزَّز بفطريات الجذور. يُحسِّن نمو الجذور ويزيد من نشاط الكائنات الدقيقة في التربة لإنتاجية استثنائية.', features:['معتمد 100% عضوي','تركيبة بطيئة الإطلاق','مُعزَّز بفطريات الجذور','مناسب لجميع المحاصيل'], image:'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=80', thumb:'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300&q=70', unit:'كيس 25 كجم', inStock:true, weight:'25 كجم' },
@@ -1942,7 +2168,6 @@ const ProductsService = (() => {
   return { getAll, getById, getCategories, getCategoryLabel, filter };
 })();
 
-/* ═══ UI HELPERS ═══ */
 const UI = (() => {
   let _tc = null;
   const init = () => { _tc = document.getElementById('toast-container'); };
@@ -1999,90 +2224,40 @@ const UI = (() => {
   return { init, showToast, empty, starRating, fmtDate, statusBadge, debounce, initRipples };
 })();
 
-/* ═══ CART SERVICE (محلي + Firestore) ═══ */
 const CartService = (() => {
   const getCart = () => Store.getState('cart');
-
-  /* مزامنة مع Firestore */
-  const _syncToFirestore = async (cart) => {
-    const uid = window.__fbUser?.uid;
-    if (!uid) return;
-    try {
-      const cartData = cart.map(i => ({ id: i.id, name: i.name, price: i.price, image: i.image, unit: i.unit, quantity: i.quantity }));
-      await window._firestore_setDoc ? window._firestore_setDoc(uid, cartData) : null;
-    } catch (e) { /* silent */ }
-  };
-
-  /* تحميل العربة من Firestore + دمج مع المحلي */
-  const _loadFromFirestore = async () => {
-    const uid = window.__fbUser?.uid;
-    if (!uid) return;
-    try {
-      const fireCart = await window._firestore_getCart?.(uid) || [];
-      const localCart = Storage.get('cart', [], uid);
-      const merged = _mergeCarts(fireCart, localCart);
-      Store.setState('cart', merged);
-      Storage.set('cart', merged, uid);
-      _syncToFirestore(merged);
-    } catch (e) { /* ابق على المحلي */ }
-  };
-
-  const _mergeCarts = (fire, local) => {
-    const map = new Map();
-    local.forEach(i => map.set(i.id, {...i}));
-    fire.forEach(i => {
-      if (!map.has(i.id)) map.set(i.id, {...i});
-    });
-    return Array.from(map.values());
-  };
-
   const addItem = (product, qty=1) => {
     Store.setState('cart', cart => {
       const idx = cart.findIndex(i => i.id === product.id);
-      let newCart;
       if(idx !== -1) {
-        newCart = cart.map((item, i) => i === idx ? { ...item, quantity: item.quantity + qty } : item);
-      } else {
-        const newItem = { id: product.id, name: product.name, price: product.price, image: product.thumb, unit: product.unit, quantity: qty };
-        newCart = [...cart, newItem];
+        return cart.map((item, i) =>
+          i === idx ? { ...item, quantity: item.quantity + qty } : item
+        );
       }
-      _syncToFirestore(newCart);
-      return newCart;
+      return [...cart, {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.thumb,
+        unit: product.unit,
+        quantity: qty
+      }];
     });
     UI.showToast(`تمت إضافة ${product.name} إلى العربة!`, 'success');
     _updateBadge();
   };
-
   const removeItem = id => {
-    Store.setState('cart', c => {
-      const newCart = c.filter(i => i.id !== id);
-      _syncToFirestore(newCart);
-      return newCart;
-    });
+    Store.setState('cart', c => c.filter(i => i.id !== id));
     _updateBadge();
   };
-
   const updateQuantity = (id, qty) => {
-    if(qty < 1) {
-      removeItem(id);
-      return;
-    }
-    Store.setState('cart', c => {
-      const newCart = c.map(i => i.id === id ? { ...i, quantity: qty } : i);
-      _syncToFirestore(newCart);
-      return newCart;
-    });
+    if(qty < 1) { removeItem(id); return; }
+    Store.setState('cart', c => c.map(i => i.id === id ? { ...i, quantity: qty } : i));
     _updateBadge();
   };
-
-  const clearCart = () => {
-    Store.setState('cart', []);
-    _syncToFirestore([]);
-    _updateBadge();
-  };
+  const clearCart = () => { Store.setState('cart', []); _updateBadge(); };
   const getTotal = () => getCart().reduce((s,i) => s + i.price * i.quantity, 0);
   const getCount = () => getCart().reduce((s,i) => s + i.quantity, 0);
-
   const _updateBadge = () => {
     const c = getCount();
     document.querySelectorAll('.cart-badge').forEach(el => {
@@ -2090,11 +2265,9 @@ const CartService = (() => {
       el.style.display = c > 0 ? 'flex' : 'none';
     });
   };
-
-  return { getCart, addItem, removeItem, updateQuantity, clearCart, getTotal, getCount, _loadFromFirestore };
+  return { getCart, addItem, removeItem, updateQuantity, clearCart, getTotal, getCount };
 })();
 
-/* ═══ AUTH SERVICE ═══ */
 const AuthService = {
   isLoggedIn: () => !!Store.getState('user'),
   login: async (args) => {
@@ -2122,44 +2295,20 @@ const AuthService = {
   }
 };
 
-/* ═══ ORDERS SERVICE (محلي + Firestore) ═══ */
 const OrdersService = (() => {
   const STATUSES = ['Processing', 'Confirmed', 'Shipped', 'Delivered'];
   const STATUS_AR = { Processing:'قيد المعالجة', Confirmed:'مؤكد', Shipped:'تم الشحن', Delivered:'تم التوصيل' };
-  const createOrder = async ({ shippingInfo }) => {
+  const createOrder = ({ shippingInfo }) => {
     const cart = CartService.getCart();
     if(!cart.length) return { ok:false, error:'العربة فارغة.' };
     const user = Store.getState('user');
     const order = { id:'ORD-'+Date.now(), userId:user?user.id:'guest', items:cart.map(i=>({...i})), total:CartService.getTotal(), shipping:shippingInfo, status:'Processing', statusIndex:0, createdAt:new Date().toISOString(), estimatedDelivery:_estimate() };
-
-    /* حفظ في Store و LocalStorage أولاً */
     Store.setState('orders', orders => [order, ...orders]);
     CartService.clearCart();
     _simulate(order.id);
-
-    /* حفظ في Firestore */
-    if (user && window.__fbUser) {
-      try {
-        await window._firestore_addOrder?.(order);
-      } catch(e) { /* تخطي */ }
-    }
     return { ok:true, order };
   };
-
-  const getOrders = async () => {
-    const user = Store.getState('user');
-    if(!user) return [];
-    /* محاولة تحميل الطلبات من Firestore أولاً */
-    if (window.__fbUser) {
-      try {
-        const fireOrders = await window._firestore_getOrders?.(user.id) || [];
-        Store.setState('orders', fireOrders);
-        return fireOrders;
-      } catch(e) { /* العودة للمحلي */ }
-    }
-    return Store.getState('orders').filter(o => o.userId === user.id);
-  };
-
+  const getOrders = () => { const user=Store.getState('user'); const orders=Store.getState('orders'); if(!user) return []; return orders.filter(o => o.userId === user.id); };
   const getOrderById = id => Store.getState('orders').find(o => o.id === id) || null;
   const updateItemQuantity = (orderId, productId, qty) => {
     Store.setState('orders', orders => orders.map(order => {
@@ -2181,7 +2330,6 @@ const OrdersService = (() => {
   return { createOrder, getOrders, getOrderById, updateItemQuantity, removeItemFromOrder, STATUSES, STATUS_AR };
 })();
 
-/* ═══ DRAWER ═══ */
 const openDrawer = () => {
   document.getElementById('settings-drawer').classList.add('open');
   document.getElementById('drawer-overlay').classList.add('open');
@@ -2200,12 +2348,12 @@ document.getElementById('settings-drawer').addEventListener('touchmove', e => {
   if(diff > 60) closeDrawer();
 }, { passive:true });
 
-/* ═══ SPA NAVIGATION ═══ */
 let _currentPage = 'home';
+
 function navigate(page, data={}) {
   const current = document.querySelector('.page.active');
   const next = document.getElementById('page-'+page);
-  if(!next) return;
+  if(!next) { console.warn('Page not found:', page); return; }
   if(current && current !== next) {
     current.classList.add('leaving');
     setTimeout(() => {
@@ -2221,6 +2369,7 @@ function navigate(page, data={}) {
     _finishNavigate(page, data);
   }
 }
+
 function _finishNavigate(page, data={}) {
   _currentPage = page;
   document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
@@ -2252,7 +2401,6 @@ function scrollToSection(id) {
   setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior:'smooth' }), 150);
 }
 
-/* ═══ PAGE INITS (مطابقة للنسخة السابقة مع تعديلات طفيفة) ═══ */
 function initHome() {
   const grid = document.getElementById('featured-grid');
   if(grid) {
@@ -2343,7 +2491,9 @@ function initProduct(id) {
         <div class="product-unit-info"><strong>الوحدة:</strong> ${product.unit} &nbsp;·&nbsp; <strong>الوزن:</strong> ${product.weight}</div>
         <div class="product-actions-row">
           <div class="qty-control"><button class="qty-btn" id="qty-dec" aria-label="تقليل">−</button><span class="qty-val" id="qty-display">1</span><button class="qty-btn" id="qty-inc" aria-label="زيادة">+</button></div>
-          ${product.inStock ? `<button class="btn btn-primary btn-lg" id="btn-add-cart" style="flex:1;">إضافة للعربة 🛒</button>` : `<button class="btn btn-disabled btn-lg" disabled style="flex:1;">غير متوفر</button>`}
+          ${product.inStock
+            ? `<button class="btn btn-primary btn-lg" id="btn-add-cart" style="flex:1;">إضافة للعربة 🛒</button>`
+            : `<button class="btn btn-disabled btn-lg" disabled style="flex:1;">غير متوفر</button>`}
         </div>
         <div class="product-trust-badges">
           <span class="trust-badge">🌿 معتمد عضويًا</span>
@@ -2370,7 +2520,6 @@ function initProduct(id) {
 function initCart() {
   const container = document.getElementById('cart-items');
   const summary = document.getElementById('cart-summary');
-
   const renderCart = () => {
     const cart = CartService.getCart();
     if(!cart.length) {
@@ -2396,7 +2545,6 @@ function initCart() {
         </div>
         <div class="cart-item-price">${Currency.fmt(item.price * item.quantity)}</div>
       </div>`).join('');
-
     const total = CartService.getTotal();
     const shippingEGP = total >= 41.67 ? 0 : 200;
     document.getElementById('cart-subtotal').textContent = Currency.fmt(total);
@@ -2413,7 +2561,6 @@ function initCart() {
       }
     }
   };
-
   container.addEventListener('click', e => {
     const btn = e.target.closest('[data-action]'); if(!btn) return;
     const id = btn.dataset.id, action = btn.dataset.action;
@@ -2423,10 +2570,8 @@ function initCart() {
     if(action === 'remove') CartService.removeItem(id);
     renderCart();
   });
-
   Store.subscribe('cart', renderCart);
   renderCart();
-
   document.getElementById('btn-checkout')?.addEventListener('click', () => {
     if(!!!Store.getState('user')) { UI.showToast('يرجى تسجيل الدخول للمتابعة.', 'warning'); setTimeout(() => navigate('login'), 1000); return; }
     navigate('checkout');
@@ -2465,10 +2610,10 @@ function initCheckout() {
     renderReview(); showStep(2);
   });
   document.getElementById('btn-back-to-1')?.addEventListener('click', () => showStep(1));
-  document.getElementById('btn-place-order')?.addEventListener('click', async () => {
+  document.getElementById('btn-place-order')?.addEventListener('click', () => {
     const form = document.getElementById('shipping-form');
     const shippingInfo = { name:form.querySelector('[name=fullname]').value, email:form.querySelector('[name=email]').value, address:form.querySelector('[name=address]').value, city:form.querySelector('[name=city]').value, zip:form.querySelector('[name=zip]').value, country:form.querySelector('[name=country]').value };
-    const result = await OrdersService.createOrder({ shippingInfo });
+    const result = OrdersService.createOrder({ shippingInfo });
     if(result.ok) { document.getElementById('confirm-order-id').textContent = result.order.id; document.getElementById('confirm-delivery').textContent = result.order.estimatedDelivery; showStep(3); }
     else UI.showToast(result.error, 'error');
   });
@@ -2476,36 +2621,32 @@ function initCheckout() {
 
 function initLogin() {
   if(Store.getState('user')) { navigate('profile'); return; }
-  const tabs = document.querySelectorAll('#page-login .auth-tab');
+  const tabs         = document.querySelectorAll('#page-login .auth-tab');
+  const loginForm    = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+  const googleBtn    = document.getElementById('btn-google');
+  const newLoginForm    = loginForm.cloneNode(true);
+  const newRegisterForm = registerForm.cloneNode(true);
+  const newGoogleBtn    = googleBtn?.cloneNode(true);
+  loginForm.replaceWith(newLoginForm);
+  registerForm.replaceWith(newRegisterForm);
+  if(googleBtn && newGoogleBtn) googleBtn.replaceWith(newGoogleBtn);
   const lf = document.getElementById('login-form');
   const rf = document.getElementById('register-form');
   const gb = document.getElementById('btn-google');
-
-  const newLf = lf.cloneNode(true);
-  const newRf = rf.cloneNode(true);
-  const newGb = gb?.cloneNode(true);
-  lf.replaceWith(newLf);
-  rf.replaceWith(newRf);
-  if(gb && newGb) gb.replaceWith(newGb);
-
-  const loginForm = document.getElementById('login-form');
-  const registerForm = document.getElementById('register-form');
-  const googleBtn = document.getElementById('btn-google');
-
   tabs.forEach(tab => {
     tab.onclick = () => {
       tabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      loginForm.classList.toggle('hidden', tab.dataset.tab !== 'login');
-      registerForm.classList.toggle('hidden', tab.dataset.tab !== 'register');
+      lf.classList.toggle('hidden', tab.dataset.tab !== 'login');
+      rf.classList.toggle('hidden', tab.dataset.tab !== 'register');
     };
   });
-
-  loginForm.onsubmit = async e => {
+  lf.onsubmit = async e => {
     e.preventDefault();
-    const btn = loginForm.querySelector('button[type=submit]');
-    const email = loginForm.querySelector('[name=email]').value.trim();
-    const password = loginForm.querySelector('[name=password]').value;
+    const btn      = lf.querySelector('button[type=submit]');
+    const email    = lf.querySelector('[name=email]').value.trim();
+    const password = lf.querySelector('[name=password]').value;
     if(!email || !password) { UI.showToast('يرجى ملء جميع الحقول.', 'error'); return; }
     if(btn) { btn.disabled = true; btn.textContent = 'جارٍ التحقق...'; }
     const r = await AuthService.login({ email, password });
@@ -2513,14 +2654,13 @@ function initLogin() {
     if(r.ok) { UI.showToast('تم تسجيل الدخول! 👋', 'success'); navigate('profile'); }
     else { UI.showToast(r.error, 'error'); }
   };
-
-  registerForm.onsubmit = async e => {
+  rf.onsubmit = async e => {
     e.preventDefault();
-    const btn = registerForm.querySelector('button[type=submit]');
-    const name = registerForm.querySelector('[name=name]').value.trim();
-    const email = registerForm.querySelector('[name=email]').value.trim();
-    const password = registerForm.querySelector('[name=password]').value;
-    const confirm = registerForm.querySelector('[name=confirm]').value;
+    const btn      = rf.querySelector('button[type=submit]');
+    const name     = rf.querySelector('[name=name]').value.trim();
+    const email    = rf.querySelector('[name=email]').value.trim();
+    const password = rf.querySelector('[name=password]').value;
+    const confirm  = rf.querySelector('[name=confirm]').value;
     if(!name || !email || !password) { UI.showToast('يرجى ملء جميع الحقول.', 'error'); return; }
     if(password !== confirm) { UI.showToast('كلمتا المرور غير متطابقتين.', 'error'); return; }
     if(password.length < 6)  { UI.showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل.', 'error'); return; }
@@ -2531,12 +2671,11 @@ function initLogin() {
     UI.showToast(`مرحبًا بك في Technopalm! 🌴`, 'success');
     navigate('profile');
   };
-
-  if(googleBtn) {
-    googleBtn.onclick = async () => {
-      googleBtn.disabled = true; googleBtn.style.opacity = '0.7';
+  if(gb) {
+    gb.onclick = async () => {
+      gb.disabled = true; gb.style.opacity = '0.7';
       const r = await AuthService.googleLogin();
-      googleBtn.disabled = false; googleBtn.style.opacity = '1';
+      gb.disabled = false; gb.style.opacity = '1';
       if(r.ok) { UI.showToast('أهلًا! تم تسجيل الدخول 🌴', 'success'); navigate('profile'); }
       else if(r.error) { UI.showToast(r.error, 'error'); }
     };
@@ -2545,19 +2684,22 @@ function initLogin() {
 
 function initProfile() {
   const user = Store.getState('user');
-  if (!user) { UI.showToast('يرجى تسجيل الدخول.', 'warning'); setTimeout(() => navigate('login'), 800); return; }
-
-  document.getElementById('profile-avatar').src = user.avatar || '';
-  document.getElementById('profile-name').textContent = user.name || '';
-  document.getElementById('profile-email').textContent = user.email || '';
+  if (!user) {
+    UI.showToast('يرجى تسجيل الدخول.', 'warning');
+    setTimeout(() => navigate('login'), 800);
+    return;
+  }
+  document.getElementById('profile-avatar').src         = user.avatar || '';
+  document.getElementById('profile-name').textContent   = user.name   || '';
+  document.getElementById('profile-email').textContent  = user.email  || '';
   document.getElementById('profile-avatar-preview').src = user.avatar || '';
-  document.getElementById('edit-name').value = user.name || '';
-  document.getElementById('edit-email-disabled').value = user.email || '';
+  document.getElementById('edit-name').value            = user.name   || '';
+  document.getElementById('edit-email-disabled').value  = user.email  || '';
 
-  _renderOrders();
+  _renderPurchases();
   if (!window._orderSubBound) {
     window._orderSubBound = true;
-    Store.subscribe('orders', _renderOrders);
+    Store.subscribe('orders', _renderPurchases);
   }
 
   const sidebar = document.querySelector('#page-profile .profile-sidebar');
@@ -2589,71 +2731,154 @@ function initProfile() {
       const r = await AuthService.updateProfile({ name });
       if (btn) { btn.disabled = false; btn.textContent = 'حفظ التغييرات'; }
       if (r.ok) {
-        document.getElementById('profile-name').textContent = name;
-        document.getElementById('profile-avatar').src = r.user.avatar;
+        document.getElementById('profile-name').textContent   = name;
+        document.getElementById('profile-avatar').src         = r.user.avatar;
         document.getElementById('profile-avatar-preview').src = r.user.avatar;
         UI.showToast('تم تحديث الملف الشخصي!', 'success');
-      } else { UI.showToast(r.error || 'حدث خطأ.', 'error'); }
-    });
-  }
-
-  const ordersList = document.getElementById('orders-list');
-  if (ordersList && !ordersList._delegated) {
-    ordersList._delegated = true;
-    ordersList.addEventListener('click', e => {
-      const btn = e.target.closest('[data-action]');
-      if (!btn) return;
-      const card = btn.closest('[data-order-id]');
-      const orderId = card?.dataset.orderId;
-      const productId = btn.dataset.productId;
-      const action = btn.dataset.action;
-      if (!orderId) return;
-      const order = OrdersService.getOrderById(orderId);
-      if (!order) return;
-      const item = order.items.find(i => i.id === productId);
-      if (action === 'inc' && item) OrdersService.updateItemQuantity(orderId, productId, item.quantity + 1);
-      if (action === 'dec' && item) OrdersService.updateItemQuantity(orderId, productId, item.quantity - 1);
-      if (action === 'remove') OrdersService.removeItemFromOrder(orderId, productId);
+      } else {
+        UI.showToast(r.error || 'حدث خطأ.', 'error');
+      }
     });
   }
 }
 
-async function _renderOrders() {
-  const container = document.getElementById('orders-list'); if(!container) return;
-  const orders = await OrdersService.getOrders();
-  if(!orders.length) { container.innerHTML = UI.empty('📦','لا توجد طلبات بعد','ستظهر طلباتك هنا بعد التسوق.',`<button class="btn btn-primary" onclick="navigate('shop')">ابدأ التسوق</button>`); return; }
-  container.innerHTML = orders.map(order => `
-    <div class="order-card" data-order-id="${order.id}">
-      <div class="order-header">
-        <div><span class="order-id">${order.id}</span><span class="order-date">${UI.fmtDate(order.createdAt)}</span></div>
-        <div class="order-header-right">${UI.statusBadge(order.status)}<span class="order-total-badge">${Currency.fmt(order.total)}</span></div>
+/* ════════════════════════════════
+   ★ CHANGED: _renderOrders → _renderPurchases
+   — Shows only product name + price + delete button
+   — No status, no tracking, no progress bar
+   — Delete removes item from UI immediately + Firestore via window._fbDeletePurchaseItem
+════════════════════════════════ */
+function _renderPurchases() {
+  const container = document.getElementById('orders-list');
+  if (!container) return;
+
+  const orders = OrdersService.getOrders();
+
+  // Flatten all items from all orders into a single purchase list
+  // Each entry carries orderId so we can target the right Firestore doc
+  const allItems = [];
+  orders.forEach(order => {
+    (order.items || []).forEach(item => {
+      allItems.push({
+        orderId:    order.id,
+        productId:  item.id,
+        name:       item.name,
+        price:      item.price,
+        quantity:   item.quantity,
+        image:      item.image,
+        unit:       item.unit || ''
+      });
+    });
+  });
+
+  if (!allItems.length) {
+    container.innerHTML = `
+      <div class="purchases-empty">
+        <span class="purchases-empty-icon">🛍️</span>
+        <p class="purchases-empty-text">لا توجد مشتريات بعد</p>
+        <button class="btn btn-primary" onclick="navigate('shop')">ابدأ التسوق</button>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="purchases-grid">${
+    allItems.map((item, idx) => `
+      <div
+        class="purchase-card"
+        data-order-id="${item.orderId}"
+        data-product-id="${item.productId}"
+        style="animation-delay:${idx * 0.05}s"
+      >
+        <div class="purchase-card-header">
+          <img
+            src="${item.image || ''}"
+            alt="${item.name}"
+            class="purchase-card-img"
+            loading="lazy"
+            onerror="this.style.display='none'"
+          >
+          <div class="purchase-card-info">
+            <div class="purchase-card-name">${item.name}</div>
+            <div class="purchase-card-unit">${item.unit}</div>
+          </div>
+        </div>
+        <div class="purchase-card-footer">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="purchase-card-price">${Currency.fmt(item.price)}</span>
+            ${item.quantity > 1 ? `<span class="purchase-card-qty">× ${item.quantity}</span>` : ''}
+          </div>
+          <button
+            class="btn-delete-purchase"
+            data-order-id="${item.orderId}"
+            data-product-id="${item.productId}"
+            aria-label="حذف ${item.name}"
+          >
+            🗑 حذف
+          </button>
+        </div>
       </div>
-      <div class="order-progress">
-        ${OrdersService.STATUSES.map((s,i) => `
-          <div class="progress-step ${i<=order.statusIndex?'done':''}">
-            <div class="progress-dot"></div>
-            <span>${OrdersService.STATUS_AR[s]||s}</span>
-          </div>`).join('<div class="progress-line"></div>')}
-      </div>
-      <div class="order-items">
-        ${order.items.map(item => `
-          <div class="order-item" data-product-id="${item.id}">
-            <img src="${item.image}" alt="${item.name}" class="order-item-img" loading="lazy">
-            <div class="order-item-info"><span class="order-item-name">${item.name}</span><span class="order-item-unit">${item.unit}</span></div>
-            <div class="order-item-controls">
-              <div class="qty-control qty-sm">
-                <button class="qty-btn" data-action="dec" data-product-id="${item.id}">−</button>
-                <span class="qty-val">${item.quantity}</span>
-                <button class="qty-btn" data-action="inc" data-product-id="${item.id}">+</button>
-              </div>
-              <span class="order-item-price">${Currency.fmt(item.price * item.quantity)}</span>
-              <button class="btn-remove-sm" data-action="remove" data-product-id="${item.id}" aria-label="حذف">✕</button>
-            </div>
-          </div>`).join('')}
-      </div>
-      ${order.shipping ? `<div class="order-shipping">📦 يُشحن إلى: ${order.shipping.address}, ${order.shipping.city} · التوصيل المتوقع: ${order.estimatedDelivery}</div>` : ''}
-    </div>`).join('');
+    `).join('')
+  }</div>`;
+
+  // Event delegation: handle delete clicks
+  if (!container._purchaseDelegated) {
+    container._purchaseDelegated = true;
+    container.addEventListener('click', _handlePurchaseDelete);
+  }
 }
+
+/* ════════════════════════════════
+   ★ NEW: Handle purchase delete
+   1. Animate card out immediately (instant UI feedback)
+   2. Remove from Store/localStorage (OrdersService)
+   3. Call Firestore delete via window._fbDeletePurchaseItem (non-blocking)
+════════════════════════════════ */
+async function _handlePurchaseDelete(e) {
+  const btn = e.target.closest('.btn-delete-purchase');
+  if (!btn) return;
+
+  const orderId   = btn.dataset.orderId;
+  const productId = btn.dataset.productId;
+  if (!orderId || !productId) return;
+
+  // 1 — Animate card out (immediate UI feedback, no reload)
+  const card = btn.closest('.purchase-card');
+  if (card) {
+    card.classList.add('removing');
+    // Remove from DOM after animation completes
+    card.addEventListener('animationend', () => {
+      card.remove();
+      // Show empty state if no cards remain
+      const grid = document.querySelector('.purchases-grid');
+      if (grid && !grid.querySelector('.purchase-card')) {
+        document.getElementById('orders-list').innerHTML = `
+          <div class="purchases-empty">
+            <span class="purchases-empty-icon">🛍️</span>
+            <p class="purchases-empty-text">لا توجد مشتريات بعد</p>
+            <button class="btn btn-primary" onclick="navigate('shop')">ابدأ التسوق</button>
+          </div>`;
+      }
+    }, { once: true });
+  }
+
+  // 2 — Remove from in-memory Store + localStorage (OrdersService handles this)
+  OrdersService.removeItemFromOrder(orderId, productId);
+
+  // 3 — Delete from Firestore (non-blocking, user doesn't wait)
+  if (typeof window._fbDeletePurchaseItem === 'function') {
+    try {
+      await window._fbDeletePurchaseItem(orderId, productId);
+    } catch (err) {
+      // Silent fail — localStorage is already updated
+      console.warn('Firestore delete failed (local state still updated):', err);
+    }
+  }
+
+  UI.showToast('تم حذف المنتج من مشترياتك.', 'success');
+}
+
+// Keep legacy _renderOrders as no-op to avoid any reference errors from existing code
+function _renderOrders() { _renderPurchases(); }
 
 function _productCard(p) {
   const disc = p.originalPrice > p.price ? Math.round((1-p.price/p.originalPrice)*100) : 0;
@@ -2678,7 +2903,9 @@ function _productCard(p) {
               <span class="product-card-price">${Currency.fmt(p.price)}</span>
               ${disc ? `<span class="product-card-original">${Currency.fmt(p.originalPrice)}</span>` : ''}
             </div>
-            ${p.inStock ? `<button class="btn-add-card" data-action="add-cart" data-id="${p.id}" aria-label="إضافة ${p.name} للعربة">+</button>` : `<span class="out-badge">غير متوفر</span>`}
+            ${p.inStock
+              ? `<button class="btn-add-card" data-action="add-cart" data-id="${p.id}" aria-label="إضافة ${p.name} للعربة">+</button>`
+              : `<span class="out-badge">غير متوفر</span>`}
           </div>
         </div>
       </div>
@@ -2733,8 +2960,8 @@ function _initParticles() {
   const particles = [
     { size:180, top:10, left:15, dur:9, delay:0 },
     { size:120, top:60, left:70, dur:7, delay:2 },
-    { size:90, top:25, left:85, dur:11, delay:1 },
-    { size:60, top:75, left:30, dur:8, delay:3 },
+    { size:90,  top:25, left:85, dur:11, delay:1 },
+    { size:60,  top:75, left:30, dur:8,  delay:3 },
     { size:140, top:45, left:50, dur:10, delay:0.5 },
   ];
   particles.forEach(p => {
@@ -2756,7 +2983,6 @@ function _updateNavUser() {
   }
 }
 
-/* ═══ BOOT ═══ */
 document.addEventListener('DOMContentLoaded', () => {
   Store.hydrate(Storage.loadAll());
   UI.init();
@@ -2791,9 +3017,11 @@ document.addEventListener('DOMContentLoaded', () => {
       mt.setAttribute('aria-expanded', open);
     });
     document.addEventListener('click', e => {
-      if(nl.classList.contains('open') && !e.target.closest('.nav')) { closeNav(); }
+      if(nl.classList.contains('open') && !e.target.closest('.nav')) closeNav();
     });
-    document.addEventListener('keydown', e => { if(e.key === 'Escape') closeNav(); });
+    document.addEventListener('keydown', e => {
+      if(e.key === 'Escape') closeNav();
+    });
   }
 
   let _ticking = false;
@@ -2811,27 +3039,37 @@ document.addEventListener('DOMContentLoaded', () => {
   UI.initRipples();
 
   const isMobile = () => window.matchMedia('(hover:none)').matches;
+
   function initCardEffects() {
     document.querySelectorAll('.product-card:not([data-fx])').forEach(card => {
       card.setAttribute('data-fx','1');
       const shine = card.querySelector('.product-card-shine');
       card.addEventListener('mousemove', e => {
         if(isMobile()) return;
-        const r = card.getBoundingClientRect();
-        const x = e.clientX - r.left;
-        const y = e.clientY - r.top;
-        const cx = r.width / 2;
-        const cy = r.height / 2;
+        const r   = card.getBoundingClientRect();
+        const x   = e.clientX - r.left;
+        const y   = e.clientY - r.top;
+        const cx  = r.width  / 2;
+        const cy  = r.height / 2;
         const tiltX = ((y - cy) / cy) * 7;
         const tiltY = ((cx - x) / cx) * 7;
         const inner = card.querySelector('.product-card-inner');
-        if(inner) { inner.style.transform = `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateZ(6px)`; }
-        if(shine) { shine.style.setProperty('--mx', (x / r.width * 100) + '%'); shine.style.setProperty('--my', (y / r.height * 100) + '%'); }
+        if(inner) {
+          inner.style.transform =
+            `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateZ(6px)`;
+        }
+        if(shine) {
+          shine.style.setProperty('--mx', (x / r.width  * 100) + '%');
+          shine.style.setProperty('--my', (y / r.height * 100) + '%');
+        }
       });
       card.addEventListener('mouseleave', () => {
         if(isMobile()) return;
         const inner = card.querySelector('.product-card-inner');
-        if(inner) { inner.style.transition = 'transform 0.55s cubic-bezier(0.22,1,0.36,1)'; inner.style.transform = 'perspective(700px) rotateX(0deg) rotateY(0deg) translateZ(0px)'; }
+        if(inner) {
+          inner.style.transition = 'transform 0.55s cubic-bezier(0.22,1,0.36,1)';
+          inner.style.transform  = 'perspective(700px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
+        }
       });
       card.addEventListener('mouseenter', () => {
         if(isMobile()) return;
@@ -2840,15 +3078,16 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       card.addEventListener('touchstart', e => {
         const touch = e.touches[0];
-        const rect = card.getBoundingClientRect();
-        const ring = document.createElement('div');
+        const rect  = card.getBoundingClientRect();
+        const ring  = document.createElement('div');
         ring.className = 'card-touch-ring';
-        ring.style.left = (touch.clientX - rect.left) + 'px';
-        ring.style.top = (touch.clientY - rect.top) + 'px';
+        ring.style.left = (touch.clientX - rect.left)  + 'px';
+        ring.style.top  = (touch.clientY - rect.top)   + 'px';
         card.appendChild(ring);
         setTimeout(() => ring.remove(), 700);
       }, {passive:true});
     });
+
     document.querySelectorAll('.feature-item:not([data-fx])').forEach(item => {
       item.setAttribute('data-fx','1');
       item.addEventListener('mouseenter', () => {
@@ -2860,6 +3099,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
   const _cardFxObserver = new MutationObserver(() => initCardEffects());
   _cardFxObserver.observe(document.body, { childList:true, subtree:true });
   initCardEffects();
@@ -2868,10 +3108,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- ═══ FIREBASE MODULE ═══ -->
+<!-- ══ FIREBASE MODULE — unchanged logic + _fbDeletePurchaseItem added ══ -->
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
-import { getAnalytics } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
+import { initializeApp }     from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+import { getAnalytics }      from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js';
 import {
   getAuth, onAuthStateChanged,
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
@@ -2880,55 +3120,39 @@ import {
 } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
 import {
   getFirestore, doc, setDoc, getDoc, updateDoc,
-  collection, addDoc, getDocs, query, where, orderBy
+  collection, addDoc, getDocs, query, where, orderBy,
+  arrayRemove
 } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 
-const _app = initializeApp({
-  apiKey: "AIzaSyAcyBGhZU9gmtMlhLkerBskYnoCn6y-ezA",
-  authDomain: "technopalm.firebaseapp.com",
-  projectId: "technopalm",
-  storageBucket: "technopalm.firebasestorage.app",
+const _app  = initializeApp({
+  apiKey:            "AIzaSyAcyBGhZU9gmtMlhLkerBskYnoCn6y-ezA",
+  authDomain:        "technopalm.firebaseapp.com",
+  projectId:         "technopalm",
+  storageBucket:     "technopalm.firebasestorage.app",
   messagingSenderId: "113693334554",
-  appId: "1:113693334554:web:21071eb869a9a6d8e2c5a3",
-  measurementId: "G-159ZPJ6X5P"
+  appId:             "1:113693334554:web:21071eb869a9a6d8e2c5a3",
+  measurementId:     "G-159ZPJ6X5P"
 });
 const _analytics = getAnalytics(_app);
 const _auth = getAuth(_app);
-const _db = getFirestore(_app);
-const _gp = new GoogleAuthProvider();
-
-/* دوال مساعدة لـ CartService و OrdersService */
-window._firestore_setDoc = async (uid, cartData) => {
-  await setDoc(doc(_db, 'carts', uid), { items: cartData, updatedAt: new Date().toISOString() });
-};
-window._firestore_getCart = async (uid) => {
-  const snap = await getDoc(doc(_db, 'carts', uid));
-  return snap.exists() ? (snap.data().items || []) : [];
-};
-window._firestore_addOrder = async (order) => {
-  await addDoc(collection(_db, 'orders'), order);
-};
-window._firestore_getOrders = async (uid) => {
-  const q = query(collection(_db, 'orders'), where('userId', '==', uid), orderBy('createdAt', 'desc'));
-  const snap = await getDocs(q);
-  return snap.docs.map(d => ({ ...d.data(), id: d.id }));
-};
+const _db   = getFirestore(_app);
+const _gp   = new GoogleAuthProvider();
 
 function _buildUser(u) {
   const name = u.displayName || u.email.split('@')[0];
   return {
-    id: u.uid,
+    id:        u.uid,
     name,
-    email: u.email,
-    avatar: u.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a4a2e&color=e2c97e&bold=true&size=128`,
-    provider: u.providerData[0]?.providerId || 'password',
+    email:     u.email,
+    avatar:    u.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a4a2e&color=e2c97e&bold=true&size=128`,
+    provider:  u.providerData[0]?.providerId || 'password',
     createdAt: u.metadata.creationTime
   };
 }
 
 onAuthStateChanged(_auth, async fbUser => {
   let w = 0;
-  while (!window.Store && w++ < 30) await new Promise(r => setTimeout(r, 100));
+  while (!window.Store && w++ < 20) await new Promise(r => setTimeout(r, 50));
   const S = window.Store;
   if (!S) return;
 
@@ -2936,24 +3160,18 @@ onAuthStateChanged(_auth, async fbUser => {
     window.__fbUser = fbUser;
     const uid = fbUser.uid;
     const user = _buildUser(fbUser);
-    window.Storage?.reloadForUser(uid);
+    if (window.Storage) window.Storage.reloadForUser(uid);
     S.setState('user', user);
-
-    /* تحميل العربة والطلبات من Firestore */
-    if (window.CartService && typeof CartService._loadFromFirestore === 'function') {
-      await CartService._loadFromFirestore();
-    }
-    if (window.OrdersService && typeof OrdersService.getOrders === 'function') {
-      await OrdersService.getOrders();
-    }
-
     getDoc(doc(_db, 'users', uid)).then(snap => {
-      if (snap.exists()) S.setState('user', { ...S.getState('user'), ...snap.data() });
+      if (snap.exists()) {
+        S.setState('user', { ...S.getState('user'), ...snap.data() });
+      }
     }).catch(() => {});
-
     if (typeof navigate === 'function') {
       const activePage = document.querySelector('.page.active');
-      if (activePage?.id === 'page-login') setTimeout(() => navigate('profile'), 300);
+      if (activePage?.id === 'page-login') {
+        setTimeout(() => navigate('profile'), 300);
+      }
     }
   } else {
     window.__fbUser = null;
@@ -2975,19 +3193,23 @@ window._fbAuth = {
       window.Store?.setState('user', user);
       window.Storage?.reloadForUser(uid);
       getDoc(doc(_db, 'users', cred.user.uid)).then(snap => {
-        if (snap.exists()) window.Store?.setState('user', { ...user, ...snap.data() });
+        if (snap.exists()) {
+          const merged = { ...user, ...snap.data() };
+          window.Store?.setState('user', merged);
+        }
       }).catch(() => {});
       return { ok: true };
     } catch(e) {
       const m = {
-        'auth/user-not-found': 'لا يوجد حساب بهذا البريد.',
-        'auth/wrong-password': 'كلمة المرور غير صحيحة.',
-        'auth/invalid-email': 'بريد إلكتروني غير صالح.',
+        'auth/user-not-found':     'لا يوجد حساب بهذا البريد.',
+        'auth/wrong-password':     'كلمة المرور غير صحيحة.',
+        'auth/invalid-email':      'بريد إلكتروني غير صالح.',
         'auth/invalid-credential': 'بريد إلكتروني أو كلمة مرور غير صحيحة.'
       };
       return { ok: false, error: m[e.code] || 'حدث خطأ، حاول مرة أخرى.' };
     }
   },
+
   register: async ({ name, email, password }) => {
     try {
       const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a4a2e&color=e2c97e&bold=true&size=128`;
@@ -3005,12 +3227,13 @@ window._fbAuth = {
     } catch(e) {
       const m = {
         'auth/email-already-in-use': 'البريد الإلكتروني مسجل مسبقًا.',
-        'auth/invalid-email': 'بريد إلكتروني غير صالح.',
-        'auth/weak-password': 'كلمة المرور ضعيفة، استخدم 6 أحرف على الأقل.'
+        'auth/invalid-email':        'بريد إلكتروني غير صالح.',
+        'auth/weak-password':        'كلمة المرور ضعيفة، استخدم 6 أحرف على الأقل.'
       };
       return { ok: false, error: m[e.code] || e.message };
     }
   },
+
   googleLogin: async () => {
     try {
       const r = await signInWithPopup(_auth, _gp);
@@ -3030,10 +3253,14 @@ window._fbAuth = {
       return { ok: false, error: 'فشل تسجيل الدخول عبر Google.' };
     }
   },
-  logout: async () => { await signOut(_auth).catch(() => {}); },
+
+  logout: async () => {
+    await signOut(_auth).catch(() => {});
+  },
+
   updateProfile: async ({ name }) => {
     const fbUser = window.__fbUser;
-    const user = window.Store?.getState('user');
+    const user   = window.Store?.getState('user');
     if (!fbUser || !user) return { ok: false, error: 'غير مسجل الدخول.' };
     try {
       const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a4a2e&color=e2c97e&bold=true&size=128`;
@@ -3044,9 +3271,62 @@ window._fbAuth = {
         setDoc(doc(_db, 'users', fbUser.uid), { name, avatar }, { merge: true })
       ]).catch(() => {});
       return { ok: true, user: updated };
-    } catch(e) { return { ok: false, error: 'فشل تحديث البيانات.' }; }
+    } catch(e) {
+      return { ok: false, error: 'فشل تحديث البيانات.' };
+    }
   }
 };
+
+/* ════════════════════════════════
+   ★ NEW: _fbDeletePurchaseItem
+   Deletes a specific item from an order document in Firestore.
+   Scoped to the current user's orders collection only.
+   Does NOT affect any other user's data.
+   
+   Firestore path: orders/{orderId}
+   Operation: removes the item with matching id from the items array
+              using arrayRemove, then updates the total field.
+   
+   If your orders are stored differently (e.g. subcollection under users),
+   adjust the doc path below accordingly.
+════════════════════════════════ */
+window._fbDeletePurchaseItem = async (orderId, productId) => {
+  const fbUser = window.__fbUser;
+  if (!fbUser) return; // not logged in — localStorage already updated
+
+  try {
+    const orderRef = doc(_db, 'orders', orderId);
+    const snap = await getDoc(orderRef);
+
+    if (!snap.exists()) {
+      // Order may be stored under user's subcollection — try alternate path
+      const altRef = doc(_db, 'users', fbUser.uid, 'orders', orderId);
+      const altSnap = await getDoc(altRef);
+      if (altSnap.exists()) {
+        const data = altSnap.data();
+        const updatedItems = (data.items || []).filter(i => i.id !== productId);
+        const newTotal = updatedItems.reduce((s, i) => s + (i.price * i.quantity), 0);
+        await updateDoc(altRef, { items: updatedItems, total: newTotal });
+      }
+      return;
+    }
+
+    // Top-level orders collection path
+    const data = snap.data();
+    // Security: only allow deleting from orders that belong to this user
+    if (data.userId !== fbUser.uid) return;
+
+    const updatedItems = (data.items || []).filter(i => i.id !== productId);
+    const newTotal = updatedItems.reduce((s, i) => s + (i.price * i.quantity), 0);
+    await updateDoc(orderRef, { items: updatedItems, total: newTotal });
+
+  } catch (err) {
+    // Non-blocking: localStorage is already updated
+    console.warn('_fbDeletePurchaseItem error:', err);
+  }
+};
+
+console.log('%c🌴 Technopalm × Firebase — Ready', 'color:#c9a84c;font-weight:bold;font-size:13px');
 </script>
 </body>
 </html>

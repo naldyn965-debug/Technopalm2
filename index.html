@@ -260,8 +260,19 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 @media(min-width:480px){.product-card-price{font-size:1.15rem;}}
 .product-card-original{font-size:0.72rem;color:var(--c-text-4);text-decoration:line-through;font-family:var(--f-latin);}
 .btn-add-card{width:34px;height:34px;background:linear-gradient(135deg,var(--c-forest),var(--c-forest-l));color:var(--c-white);border-radius:var(--r-sm);font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.28s ease;flex-shrink:0;position:relative;overflow:hidden;}
-.btn-add-card:hover{transform:scale(1.18) rotate(8deg);box-shadow:0 6px 22px rgba(26,74,46,0.45);}
+.btn-add-card:hover{transform:scale(1.12);box-shadow:0 6px 20px rgba(26,74,46,0.4);}
 .out-badge{font-size:0.7rem;color:var(--c-text-3);font-weight:600;}
+/* ═ FLY-TO-CART ANIMATION ═ */
+.btn-add-card.btn-add-success{background:linear-gradient(135deg,#16a34a,#22c55e)!important;transform:scale(1.08)!important;box-shadow:0 4px 16px rgba(34,197,94,0.45)!important;transition:background 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease!important;}
+@keyframes addSuccessPop{0%{transform:scale(0.8);}60%{transform:scale(1.22);}100%{transform:scale(1.08);}}
+.btn-add-card .btn-add-icon{display:inline-block;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);}
+.btn-add-card.btn-add-success .btn-add-icon{transform:scale(1.2);}
+@keyframes flyToCart{0%{opacity:1;transform:translate(0,0) scale(1);}25%{opacity:1;transform:translate(var(--fly-x1),var(--fly-y1)) scale(0.8);}65%{opacity:0.8;transform:translate(var(--fly-x2),var(--fly-y2)) scale(0.45);}100%{opacity:0;transform:translate(var(--fly-xf),var(--fly-yf)) scale(0.1);}}
+.fly-product{position:fixed;border-radius:50%;pointer-events:none;z-index:9999;box-shadow:0 4px 16px rgba(26,74,46,0.35);animation:flyToCart 0.7s cubic-bezier(0.42,0,0.58,1) forwards;}
+@keyframes cartBounce{0%{transform:scale(1);}25%{transform:scale(1.38) rotate(-5deg);}50%{transform:scale(0.88) rotate(3deg);}75%{transform:scale(1.14) rotate(-2deg);}100%{transform:scale(1) rotate(0deg);}}
+.cart-bounce{animation:cartBounce 0.42s cubic-bezier(0.34,1.56,0.64,1) both!important;}
+@keyframes badgeFlash{0%{transform:scale(1);}35%{transform:scale(1.55);background:var(--c-success);border-color:var(--c-success);}100%{transform:scale(1);}}
+.badge-flash{animation:badgeFlash 0.38s ease both!important;}
 .card-touch-ring{position:absolute;border-radius:50%;pointer-events:none;width:50px;height:50px;background:radial-gradient(circle,rgba(45,107,68,0.35) 0%,transparent 70%);border:1.5px solid rgba(45,107,68,0.3);animation:glowRingPop 0.65s ease-out forwards;z-index:10;transform:translate(-50%,-50%);}
 .stars{display:flex;gap:1px;}
 .star{font-size:0.7rem;color:var(--c-border);}
@@ -1060,7 +1071,22 @@ function initProduct(id){
   document.getElementById('qty-dec')?.addEventListener('click',()=>{if(qty>1){qty--;document.getElementById('qty-display').textContent=qty;}});
   document.getElementById('qty-inc')?.addEventListener('click',()=>{qty++;document.getElementById('qty-display').textContent=qty;});
   const addBtn=document.getElementById('btn-add-cart');
-  if(addBtn){addBtn.addEventListener('click',()=>{CartService.addItem(product,qty);addBtn.textContent='✓ تمت الإضافة!';addBtn.classList.add('btn-added');setTimeout(()=>{addBtn.textContent='إضافة للعربة 🛒';addBtn.classList.remove('btn-added');},2200);});}
+  if(addBtn){addBtn.addEventListener('click',()=>{
+    if(addBtn.dataset.adding) return;
+    addBtn.dataset.adding='1';
+    _flyToCart(addBtn, null);
+    CartService.addItem(product,qty);
+    const orig = addBtn.innerHTML;
+    addBtn.innerHTML='✓ تمت الإضافة!';
+    addBtn.classList.add('btn-added');
+    addBtn.style.pointerEvents='none';
+    setTimeout(()=>{
+      addBtn.innerHTML=orig;
+      addBtn.classList.remove('btn-added');
+      addBtn.style.pointerEvents='';
+      delete addBtn.dataset.adding;
+    },2000);
+  });}
   UI.initRipples();
 }
 
@@ -1190,12 +1216,81 @@ function _renderOrders(){_renderPurchases();}
 
 function _productCard(p){
   const disc=p.originalPrice>p.price?Math.round((1-p.price/p.originalPrice)*100):0;
-  return`<div class="product-card" data-id="${p.id}" role="article"><div class="product-card-shine"></div><div class="product-card-inner"><div class="product-card-img-wrap"><img data-src="${p.thumb}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect fill='%23e8f5ec' width='300' height='200'/%3E%3C/svg%3E" alt="${p.name}" class="product-card-img" loading="lazy">${p.badge?`<span class="product-badge">${p.badge}</span>`:''} ${!p.inStock?`<div class="out-of-stock-overlay">غير متوفر</div>`:''}<div class="product-card-overlay"><div class="product-overlay-action">← عرض التفاصيل</div></div></div><div class="product-card-body"><div class="product-card-cat">${ProductsService.getCategoryLabel(p.category)}</div><h3 class="product-card-name">${p.name}</h3><div class="product-card-meta">${UI.starRating(p.rating)}<span class="product-card-reviews">${p.reviews} تقييم</span></div><div class="product-card-footer"><div class="product-card-price-wrap"><span class="product-card-price">${Currency.fmt(p.price)}</span>${disc?`<span class="product-card-original">${Currency.fmt(p.originalPrice)}</span>`:''}</div>${p.inStock?`<button class="btn-add-card" data-action="add-cart" data-id="${p.id}" aria-label="إضافة ${p.name} للعربة">+</button>`:`<span class="out-badge">غير متوفر</span>`}</div></div></div></div>`;
+  return`<div class="product-card" data-id="${p.id}" role="article"><div class="product-card-shine"></div><div class="product-card-inner"><div class="product-card-img-wrap"><img data-src="${p.thumb}" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect fill='%23e8f5ec' width='300' height='200'/%3E%3C/svg%3E" alt="${p.name}" class="product-card-img" loading="lazy">${p.badge?`<span class="product-badge">${p.badge}</span>`:''} ${!p.inStock?`<div class="out-of-stock-overlay">غير متوفر</div>`:''}<div class="product-card-overlay"><div class="product-overlay-action">← عرض التفاصيل</div></div></div><div class="product-card-body"><div class="product-card-cat">${ProductsService.getCategoryLabel(p.category)}</div><h3 class="product-card-name">${p.name}</h3><div class="product-card-meta">${UI.starRating(p.rating)}<span class="product-card-reviews">${p.reviews} تقييم</span></div><div class="product-card-footer"><div class="product-card-price-wrap"><span class="product-card-price">${Currency.fmt(p.price)}</span>${disc?`<span class="product-card-original">${Currency.fmt(p.originalPrice)}</span>`:''}</div>${p.inStock?`<button class="btn-add-card" data-action="add-cart" data-id="${p.id}" aria-label="إضافة ${p.name} للعربة"><span class="btn-add-icon">+</span></button>`:`<span class="out-badge">غير متوفر</span>`}</div></div></div></div>`;
+}
+
+function _flyToCart(btn, productImg) {
+  // Get positions
+  const btnRect = btn.getBoundingClientRect();
+  const cartEl = document.querySelector('.nav-cart-btn');
+  if (!cartEl) return;
+  const cartRect = cartEl.getBoundingClientRect();
+
+  // Create flying element (circle with product color)
+  const fly = document.createElement('div');
+  fly.className = 'fly-product';
+  const size = 44;
+  fly.style.cssText = `
+    width:${size}px;height:${size}px;
+    left:${btnRect.left + btnRect.width/2 - size/2}px;
+    top:${btnRect.top + btnRect.height/2 - size/2}px;
+    background:linear-gradient(135deg,#1a4a2e,#2d6b44);
+  `;
+
+  // Calculate fly trajectory to cart icon
+  const dx = cartRect.left + cartRect.width/2 - (btnRect.left + btnRect.width/2);
+  const dy = cartRect.top + cartRect.height/2 - (btnRect.top + btnRect.height/2);
+  fly.style.setProperty('--fly-x1', `${dx * 0.2}px`);
+  fly.style.setProperty('--fly-y1', `${dy * 0.1 - 30}px`);
+  fly.style.setProperty('--fly-x2', `${dx * 0.6}px`);
+  fly.style.setProperty('--fly-y2', `${dy * 0.5}px`);
+  fly.style.setProperty('--fly-xf', `${dx}px`);
+  fly.style.setProperty('--fly-yf', `${dy}px`);
+
+  document.body.appendChild(fly);
+
+  // Bounce cart + flash badge when fly arrives
+  setTimeout(() => {
+    fly.remove();
+    cartEl.classList.remove('cart-bounce');
+    void cartEl.offsetWidth;
+    cartEl.classList.add('cart-bounce');
+    const badge = cartEl.querySelector('.cart-badge');
+    if (badge) {
+      badge.classList.remove('badge-flash');
+      void badge.offsetWidth;
+      badge.classList.add('badge-flash');
+    }
+    setTimeout(() => {
+      cartEl.classList.remove('cart-bounce');
+      if (badge) badge.classList.remove('badge-flash');
+    }, 500);
+  }, 680);
 }
 
 function _handleCardClick(e){
   const addBtn=e.target.closest('[data-action="add-cart"]');
-  if(addBtn){e.preventDefault();e.stopPropagation();const p=ProductsService.getById(addBtn.dataset.id);if(p){CartService.addItem(p,1);addBtn.textContent='✓';addBtn.style.background='var(--c-success)';setTimeout(()=>{addBtn.textContent='+';addBtn.style.background='';},1600);}return;}
+  if(addBtn){
+    e.preventDefault();e.stopPropagation();
+    const p=ProductsService.getById(addBtn.dataset.id);
+    if(p && !addBtn.dataset.adding){
+      addBtn.dataset.adding='1';
+      // Fly animation
+      _flyToCart(addBtn, null);
+      // Button state: success
+      addBtn.classList.add('btn-add-success');
+      const icon = addBtn.querySelector('.btn-add-icon');
+      if(icon) icon.textContent = '✓';
+      CartService.addItem(p,1);
+      // Reset after 1.8s
+      setTimeout(()=>{
+        addBtn.classList.remove('btn-add-success');
+        if(icon) icon.textContent = '+';
+        delete addBtn.dataset.adding;
+      }, 1800);
+    }
+    return;
+  }
   const card=e.target.closest('.product-card');if(card&&card.dataset.id)navigate('product',{id:card.dataset.id});
 }
 

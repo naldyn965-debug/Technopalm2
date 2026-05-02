@@ -1109,14 +1109,24 @@ function initLogin(){
   loginForm.replaceWith(nLF);registerForm.replaceWith(nRF);if(googleBtn&&nGB)googleBtn.replaceWith(nGB);
   const lf=document.getElementById('login-form');const rf=document.getElementById('register-form');const gb=document.getElementById('btn-google');
   tabs.forEach(tab=>{tab.onclick=()=>{tabs.forEach(t=>t.classList.remove('active'));tab.classList.add('active');lf.classList.toggle('hidden',tab.dataset.tab!=='login');rf.classList.toggle('hidden',tab.dataset.tab!=='register');};});
-  lf.onsubmit=async e=>{e.preventDefault();const btn=lf.querySelector('button[type=submit]');const email=lf.querySelector('[name=email]').value.trim();const password=lf.querySelector('[name=password]').value;if(!email||!password){UI.showToast('يرجى ملء جميع الحقول.','error');return;}if(btn){btn.disabled=true;btn.textContent='جارٍ التحقق...';}const r=await AuthService.login({email,password});if(btn){btn.disabled=false;btn.textContent='تسجيل الدخول';}if(r.ok){UI.showToast('تم تسجيل الدخول! 👋','success');navigate('profile');}else{UI.showToast(r.error,'error');}};
-  rf.onsubmit=async e=>{e.preventDefault();const btn=rf.querySelector('button[type=submit]');const name=rf.querySelector('[name=name]').value.trim();const email=rf.querySelector('[name=email]').value.trim();const password=rf.querySelector('[name=password]').value;const confirm=rf.querySelector('[name=confirm]').value;if(!name||!email||!password){UI.showToast('يرجى ملء جميع الحقول.','error');return;}if(password!==confirm){UI.showToast('كلمتا المرور غير متطابقتين.','error');return;}if(password.length<6){UI.showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل.','error');return;}if(btn){btn.disabled=true;btn.textContent='جارٍ إنشاء الحساب...';}const rr=await AuthService.register({name,email,password});if(btn){btn.disabled=false;btn.textContent='إنشاء الحساب';}if(!rr.ok){UI.showToast(rr.error,'error');return;}UI.showToast('مرحبًا بك في Technopalm! 🌴','success');navigate('profile');};
-  if(gb){gb.onclick=async()=>{gb.disabled=true;gb.style.opacity='0.7';const r=await AuthService.googleLogin();gb.disabled=false;gb.style.opacity='1';if(r.ok){UI.showToast('أهلًا! تم تسجيل الدخول 🌴','success');navigate('profile');}else if(r.error){UI.showToast(r.error,'error');}};}
+  lf.onsubmit=async e=>{e.preventDefault();const btn=lf.querySelector('button[type=submit]');const email=lf.querySelector('[name=email]').value.trim();const password=lf.querySelector('[name=password]').value;if(!email||!password){UI.showToast('يرجى ملء جميع الحقول.','error');return;}if(btn){btn.disabled=true;btn.textContent='جارٍ التحقق...';}const r=await AuthService.login({email,password});if(btn){btn.disabled=false;btn.textContent='تسجيل الدخول';}if(r.ok){UI.showToast('تم تسجيل الدخول! 👋','success');setTimeout(()=>navigate('profile'),50);}else{UI.showToast(r.error,'error');}};
+  rf.onsubmit=async e=>{e.preventDefault();const btn=rf.querySelector('button[type=submit]');const name=rf.querySelector('[name=name]').value.trim();const email=rf.querySelector('[name=email]').value.trim();const password=rf.querySelector('[name=password]').value;const confirm=rf.querySelector('[name=confirm]').value;if(!name||!email||!password){UI.showToast('يرجى ملء جميع الحقول.','error');return;}if(password!==confirm){UI.showToast('كلمتا المرور غير متطابقتين.','error');return;}if(password.length<6){UI.showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل.','error');return;}if(btn){btn.disabled=true;btn.textContent='جارٍ إنشاء الحساب...';}const rr=await AuthService.register({name,email,password});if(btn){btn.disabled=false;btn.textContent='إنشاء الحساب';}if(!rr.ok){UI.showToast(rr.error,'error');return;}UI.showToast('مرحبًا بك في Technopalm! 🌴','success');setTimeout(()=>navigate('profile'),50);};
+  if(gb){gb.onclick=async()=>{gb.disabled=true;gb.style.opacity='0.7';const r=await AuthService.googleLogin();gb.disabled=false;gb.style.opacity='1';if(r.ok){UI.showToast('أهلًا! تم تسجيل الدخول 🌴','success');setTimeout(()=>navigate('profile'),50);}else if(r.error){UI.showToast(r.error,'error');}};}
 }
 
 function initProfile(){
   const user=Store.getState('user');
-  if(!user){UI.showToast('يرجى تسجيل الدخول.','warning');setTimeout(()=>navigate('login'),800);return;}
+  // If no user in Store yet, wait briefly for Firebase auth to hydrate
+  if(!user){
+    if(window.__fbUser){
+      // Firebase says user is logged in but Store not updated yet, wait
+      setTimeout(()=>initProfile(),120);
+      return;
+    }
+    UI.showToast('يرجى تسجيل الدخول.','warning');
+    setTimeout(()=>navigate('login'),800);
+    return;
+  }
   document.getElementById('profile-avatar').src=user.avatar||'';
   document.getElementById('profile-name').textContent=user.name||'';
   document.getElementById('profile-email').textContent=user.email||'';
@@ -1301,7 +1311,7 @@ onAuthStateChanged(_auth,async fbUser=>{
     S.setState('user',user);
     getDoc(doc(_db,'users',uid)).then(snap=>{if(snap.exists())S.setState('user',{...S.getState('user'),...snap.data()});}).catch(()=>{});
     await _loadUserOrdersFromFirestore(uid);
-    if(typeof navigate==='function'){const activePage=document.querySelector('.page.active');if(activePage?.id==='page-login'){setTimeout(()=>navigate('profile'),300);}}
+    // Navigation handled by login/register/googleLogin functions directly
   }else{
     window.__fbUser=null;
     if(S.getState('user')){S.setState('user',null);S.setState('cart',[]);S.setState('orders',[]);}

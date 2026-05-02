@@ -1105,13 +1105,35 @@ function initLogin(){
   const loginForm=document.getElementById('login-form');
   const registerForm=document.getElementById('register-form');
   const googleBtn=document.getElementById('btn-google');
+  /* إعادة تهيئة النماذج لتجنب تكرار المستمعين */
   const nLF=loginForm.cloneNode(true);const nRF=registerForm.cloneNode(true);const nGB=googleBtn?.cloneNode(true);
   loginForm.replaceWith(nLF);registerForm.replaceWith(nRF);if(googleBtn&&nGB)googleBtn.replaceWith(nGB);
   const lf=document.getElementById('login-form');const rf=document.getElementById('register-form');const gb=document.getElementById('btn-google');
+
+  /* ----- تعطيل الأزرار حتى يصبح Firebase جاهزاً ----- */
+  const setFormsEnabled = (enabled) => {
+    const buttons = document.querySelectorAll('#page-login button[type=submit], #btn-google');
+    buttons.forEach(btn => { btn.disabled = !enabled; btn.style.opacity = enabled ? '1' : '0.6'; });
+  };
+
+  if (window.__firebaseReady) {
+    setFormsEnabled(true);
+  } else {
+    setFormsEnabled(false);
+    window.addEventListener('firebase-loaded', () => setFormsEnabled(true), { once: true });
+    setTimeout(() => {
+      if (!window.__firebaseReady) {
+        UI.showToast('يبدو أن خدمة المصادقة لم تُحمَّل بعد. تحقق من اتصالك.', 'warning');
+        setFormsEnabled(true); // نسمح لهم بتسجيل الدخول ليظهروا رسالة الخطأ الأصلية إن لم تكن الخدمة جاهزة
+      }
+    }, 8000);
+  }
+  /* --------------------------------------------------- */
+
   tabs.forEach(tab=>{tab.onclick=()=>{tabs.forEach(t=>t.classList.remove('active'));tab.classList.add('active');lf.classList.toggle('hidden',tab.dataset.tab!=='login');rf.classList.toggle('hidden',tab.dataset.tab!=='register');};});
-  lf.onsubmit=async e=>{e.preventDefault();const btn=lf.querySelector('button[type=submit]');const email=lf.querySelector('[name=email]').value.trim();const password=lf.querySelector('[name=password]').value;if(!email||!password){UI.showToast('يرجى ملء جميع الحقول.','error');return;}if(btn){btn.disabled=true;btn.textContent='جارٍ التحقق...';}const r=await AuthService.login({email,password});if(btn){btn.disabled=false;btn.textContent='تسجيل الدخول';}if(r.ok){UI.showToast('تم تسجيل الدخول! 👋','success');navigate('profile');}else{UI.showToast(r.error,'error');}};
-  rf.onsubmit=async e=>{e.preventDefault();const btn=rf.querySelector('button[type=submit]');const name=rf.querySelector('[name=name]').value.trim();const email=rf.querySelector('[name=email]').value.trim();const password=rf.querySelector('[name=password]').value;const confirm=rf.querySelector('[name=confirm]').value;if(!name||!email||!password){UI.showToast('يرجى ملء جميع الحقول.','error');return;}if(password!==confirm){UI.showToast('كلمتا المرور غير متطابقتين.','error');return;}if(password.length<6){UI.showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل.','error');return;}if(btn){btn.disabled=true;btn.textContent='جارٍ إنشاء الحساب...';}const rr=await AuthService.register({name,email,password});if(btn){btn.disabled=false;btn.textContent='إنشاء الحساب';}if(!rr.ok){UI.showToast(rr.error,'error');return;}UI.showToast('مرحبًا بك في Technopalm! 🌴','success');navigate('profile');};
-  if(gb){gb.onclick=async()=>{gb.disabled=true;gb.style.opacity='0.7';const r=await AuthService.googleLogin();gb.disabled=false;gb.style.opacity='1';if(r.ok){UI.showToast('أهلًا! تم تسجيل الدخول 🌴','success');navigate('profile');}else if(r.error){UI.showToast(r.error,'error');}};}
+  lf.onsubmit=async e=>{e.preventDefault();const btn=lf.querySelector('button[type=submit]');const email=lf.querySelector('[name=email]').value.trim();const password=lf.querySelector('[name=password]').value;if(!email||!password){UI.showToast('يرجى ملء جميع الحقول.','error');return;}if(btn){btn.disabled=true;btn.textContent='جارٍ التحقق...';}const r=await AuthService.login({email,password});if(btn){btn.disabled=!window.__firebaseReady; btn.textContent='تسجيل الدخول';}if(r.ok){UI.showToast('تم تسجيل الدخول! 👋','success');navigate('profile');}else{UI.showToast(r.error,'error');}};
+  rf.onsubmit=async e=>{e.preventDefault();const btn=rf.querySelector('button[type=submit]');const name=rf.querySelector('[name=name]').value.trim();const email=rf.querySelector('[name=email]').value.trim();const password=rf.querySelector('[name=password]').value;const confirm=rf.querySelector('[name=confirm]').value;if(!name||!email||!password){UI.showToast('يرجى ملء جميع الحقول.','error');return;}if(password!==confirm){UI.showToast('كلمتا المرور غير متطابقتين.','error');return;}if(password.length<6){UI.showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل.','error');return;}if(btn){btn.disabled=true;btn.textContent='جارٍ إنشاء الحساب...';}const rr=await AuthService.register({name,email,password});if(btn){btn.disabled=!window.__firebaseReady; btn.textContent='إنشاء الحساب';}if(!rr.ok){UI.showToast(rr.error,'error');return;}UI.showToast('مرحبًا بك في Technopalm! 🌴','success');navigate('profile');};
+  if(gb){gb.onclick=async()=>{if(!window.__firebaseReady){UI.showToast('خدمة المصادقة قيد التحميل…','info');return;}gb.disabled=true;gb.style.opacity='0.7';const r=await AuthService.googleLogin();gb.disabled=!window.__firebaseReady;gb.style.opacity='1';if(r.ok){UI.showToast('أهلًا! تم تسجيل الدخول 🌴','success');navigate('profile');}else if(r.error){UI.showToast(r.error,'error');}};}
 }
 
 function initProfile(){
@@ -1315,6 +1337,10 @@ window._fbAuth={
   logout:async()=>{await signOut(_auth).catch(()=>{});},
   updateProfile:async({name})=>{const fbUser=window.__fbUser;const user=window.Store?.getState('user');if(!fbUser||!user)return{ok:false,error:'غير مسجل الدخول.'};try{const avatar=`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a4a2e&color=e2c97e&bold=true&size=128`;const updated={...user,name,avatar};window.Store.setState('user',updated);Promise.all([fbUpdateProfile(fbUser,{displayName:name,photoURL:avatar}),setDoc(doc(_db,'users',fbUser.uid),{name,avatar},{merge:true})]).catch(()=>{});return{ok:true,user:updated};}catch(e){return{ok:false,error:'فشل تحديث البيانات.'};}}
 };
+
+// إشارة أن كل شيء جاهز
+window.__firebaseReady = true;
+window.dispatchEvent(new CustomEvent('firebase-loaded'));
 
 window._fbSaveOrder=async(order)=>{const fbUser=window.__fbUser;if(!fbUser)return;try{await setDoc(doc(_db,'users',fbUser.uid,'orders',order.id),{...order,userId:fbUser.uid,savedAt:new Date().toISOString()});}catch(err){console.warn('_fbSaveOrder error:',err);}};
 window._fbUpdateOrderStatus=async(orderId,status)=>{const fbUser=window.__fbUser;if(!fbUser)return;try{await updateDoc(doc(_db,'users',fbUser.uid,'orders',orderId),{status,updatedAt:new Date().toISOString()});}catch(err){console.warn('_fbUpdateOrderStatus error:',err);}};

@@ -1146,18 +1146,26 @@ function initLogin(){
   loginForm.replaceWith(nLF);registerForm.replaceWith(nRF);if(googleBtn&&nGB)googleBtn.replaceWith(nGB);
   const lf=document.getElementById('login-form');const rf=document.getElementById('register-form');const gb=document.getElementById('btn-google');
   tabs.forEach(tab=>{tab.onclick=()=>{tabs.forEach(t=>t.classList.remove('active'));tab.classList.add('active');lf.classList.toggle('hidden',tab.dataset.tab!=='login');rf.classList.toggle('hidden',tab.dataset.tab!=='register');};});
-  lf.onsubmit=async e=>{e.preventDefault();const btn=lf.querySelector('button[type=submit]');const email=lf.querySelector('[name=email]').value.trim();const password=lf.querySelector('[name=password]').value;if(!email||!password){UI.showToast('يرجى ملء جميع الحقول.','error');return;}if(btn){btn.disabled=true;btn.textContent='جارٍ التحقق...';}const r=await AuthService.login({email,password});if(btn){btn.disabled=false;btn.textContent='تسجيل الدخول';}if(r.ok){UI.showToast('تم تسجيل الدخول! 👋','success');setTimeout(()=>navigate('profile'),50);}else{UI.showToast(r.error,'error');}};
+  lf.onsubmit=async e=>{e.preventDefault();const btn=lf.querySelector('button[type=submit]');const email=lf.querySelector('[name=email]').value.trim();const password=lf.querySelector('[name=password]').value;if(!email||!password){UI.showToast('يرجى ملء جميع الحقول.','error');return;}if(btn){btn.disabled=true;btn.textContent='جارٍ التحقق...';}const r=await AuthService.login({email,password});if(btn){btn.disabled=false;btn.textContent='تسجيل الدخول';}if(r.ok){if(r.user)Store.setState('user',r.user);UI.showToast('تم تسجيل الدخول! 👋','success');setTimeout(()=>navigate('profile'),100);}else{UI.showToast(r.error,'error');}};
   rf.onsubmit=async e=>{e.preventDefault();const btn=rf.querySelector('button[type=submit]');const name=rf.querySelector('[name=name]').value.trim();const email=rf.querySelector('[name=email]').value.trim();const password=rf.querySelector('[name=password]').value;const confirm=rf.querySelector('[name=confirm]').value;if(!name||!email||!password){UI.showToast('يرجى ملء جميع الحقول.','error');return;}if(password!==confirm){UI.showToast('كلمتا المرور غير متطابقتين.','error');return;}if(password.length<6){UI.showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل.','error');return;}if(btn){btn.disabled=true;btn.textContent='جارٍ إنشاء الحساب...';}const rr=await AuthService.register({name,email,password});if(btn){btn.disabled=false;btn.textContent='إنشاء الحساب';}if(!rr.ok){UI.showToast(rr.error,'error');return;}UI.showToast('مرحبًا بك في Technopalm! 🌴','success');setTimeout(()=>navigate('profile'),50);};
-  if(gb){gb.onclick=async()=>{gb.disabled=true;gb.style.opacity='0.7';const r=await AuthService.googleLogin();gb.disabled=false;gb.style.opacity='1';if(r.ok){UI.showToast('أهلًا! تم تسجيل الدخول 🌴','success');setTimeout(()=>navigate('profile'),50);}else if(r.error){UI.showToast(r.error,'error');}};}
+  if(gb){gb.onclick=async()=>{gb.disabled=true;gb.style.opacity='0.7';const r=await AuthService.googleLogin();gb.disabled=false;gb.style.opacity='1';if(r.ok){// إذا الـ user جاء في response استعملناه مباشرة
+if(r.user)Store.setState('user',r.user);UI.showToast('أهلًا! تم تسجيل الدخول 🌴','success');setTimeout(()=>navigate('profile'),100);}else if(r.error){UI.showToast(r.error,'error');}};}
 }
 
 function initProfile(){
   const user=Store.getState('user');
-  // If no user in Store yet, wait briefly for Firebase auth to hydrate
   if(!user){
+    // Firebase user exists but Store not updated yet → wait up to 600ms
     if(window.__fbUser){
-      // Firebase says user is logged in but Store not updated yet, wait
-      setTimeout(()=>initProfile(),120);
+      let _tries=0;
+      const _wait=()=>{
+        _tries++;
+        const u=Store.getState('user');
+        if(u){initProfile();return;}
+        if(_tries<6){setTimeout(_wait,100);}
+        else{UI.showToast('يرجى تسجيل الدخول.','warning');setTimeout(()=>navigate('login'),800);}
+      };
+      setTimeout(_wait,100);
       return;
     }
     UI.showToast('يرجى تسجيل الدخول.','warning');
@@ -1426,9 +1434,10 @@ onAuthStateChanged(_auth,async fbUser=>{
 });
 
 window._fbAuth={
-  login:async({email,password})=>{try{const cred=await signInWithEmailAndPassword(_auth,email,password);window.__fbUser=cred.user;const uid=cred.user.uid;const user=_buildUser(cred.user);window.Store?.setState('user',user);window.Storage?.reloadForUser(uid);getDoc(doc(_db,'users',uid)).then(snap=>{if(snap.exists())window.Store?.setState('user',{...user,...snap.data()});}).catch(()=>{});_loadUserOrdersFromFirestore(uid).catch(()=>{});return{ok:true};}catch(e){const m={'auth/user-not-found':'لا يوجد حساب بهذا البريد.','auth/wrong-password':'كلمة المرور غير صحيحة.','auth/invalid-email':'بريد إلكتروني غير صالح.','auth/invalid-credential':'بريد إلكتروني أو كلمة مرور غير صحيحة.'};return{ok:false,error:m[e.code]||'حدث خطأ، حاول مرة أخرى.'};}},
+  login:async({email,password})=>{try{const cred=await signInWithEmailAndPassword(_auth,email,password);window.__fbUser=cred.user;const uid=cred.user.uid;const user=_buildUser(cred.user);window.Store?.setState('user',user);window.Storage?.reloadForUser(uid);getDoc(doc(_db,'users',uid)).then(snap=>{if(snap.exists())window.Store?.setState('user',{...user,...snap.data()});}).catch(()=>{});_loadUserOrdersFromFirestore(uid).catch(()=>{});await new Promise(res=>setTimeout(res,80));return{ok:true,user};}catch(e){const m={'auth/user-not-found':'لا يوجد حساب بهذا البريد.','auth/wrong-password':'كلمة المرور غير صحيحة.','auth/invalid-email':'بريد إلكتروني غير صالح.','auth/invalid-credential':'بريد إلكتروني أو كلمة مرور غير صحيحة.'};return{ok:false,error:m[e.code]||'حدث خطأ، حاول مرة أخرى.'};}},
   register:async({name,email,password})=>{try{const avatar=`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a4a2e&color=e2c97e&bold=true&size=128`;const cred=await createUserWithEmailAndPassword(_auth,email,password);window.__fbUser=cred.user;const uid=cred.user.uid;const user={..._buildUser(cred.user),name,avatar};window.Store?.setState('user',user);window.Storage?.reloadForUser(uid);Promise.all([fbUpdateProfile(cred.user,{displayName:name,photoURL:avatar}),setDoc(doc(_db,'users',uid),{name,email,avatar,createdAt:new Date().toISOString()})]).catch(()=>{});return{ok:true};}catch(e){const m={'auth/email-already-in-use':'البريد الإلكتروني مسجل مسبقًا.','auth/invalid-email':'بريد إلكتروني غير صالح.','auth/weak-password':'كلمة المرور ضعيفة، استخدم 6 أحرف على الأقل.'};return{ok:false,error:m[e.code]||e.message};}},
-  googleLogin:async()=>{try{const r=await signInWithPopup(_auth,_gp);window.__fbUser=r.user;const uid=r.user.uid;const user=_buildUser(r.user);window.Store?.setState('user',user);window.Storage?.reloadForUser(uid);setDoc(doc(_db,'users',uid),{name:r.user.displayName,email:r.user.email,avatar:r.user.photoURL,provider:'google',updatedAt:new Date().toISOString()},{merge:true}).catch(()=>{});_loadUserOrdersFromFirestore(uid).catch(()=>{});return{ok:true};}catch(e){if(e.code==='auth/popup-closed-by-user')return{ok:false,error:''};return{ok:false,error:'فشل تسجيل الدخول عبر Google.'};}},
+  googleLogin:async()=>{try{const r=await signInWithPopup(_auth,_gp);window.__fbUser=r.user;const uid=r.user.uid;const user=_buildUser(r.user);window.Store?.setState('user',user);window.Storage?.reloadForUser(uid);setDoc(doc(_db,'users',uid),{name:r.user.displayName,email:r.user.email,avatar:r.user.photoURL,provider:'google',updatedAt:new Date().toISOString()},{merge:true}).catch(()=>{});_loadUserOrdersFromFirestore(uid).catch(()=>{});// ★ ننتظر إن الـ Store يتحدث فعلاً قبل ما نقول ok
+await new Promise(res=>setTimeout(res,80));return{ok:true,user};}catch(e){if(e.code==='auth/popup-closed-by-user')return{ok:false,error:''};return{ok:false,error:'فشل تسجيل الدخول عبر Google.'};}},
   logout:async()=>{await signOut(_auth).catch(()=>{});},
   updateProfile:async({name})=>{const fbUser=window.__fbUser;const user=window.Store?.getState('user');if(!fbUser||!user)return{ok:false,error:'غير مسجل الدخول.'};try{const avatar=`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=1a4a2e&color=e2c97e&bold=true&size=128`;const updated={...user,name,avatar};window.Store.setState('user',updated);Promise.all([fbUpdateProfile(fbUser,{displayName:name,photoURL:avatar}),setDoc(doc(_db,'users',fbUser.uid),{name,avatar},{merge:true})]).catch(()=>{});return{ok:true,user:updated};}catch(e){return{ok:false,error:'فشل تحديث البيانات.'};}}
 };

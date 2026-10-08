@@ -887,6 +887,72 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:2.5px
 }
 @media(max-width:400px){.fec-inner{padding:18px 16px;}.fec-icon-box{width:46px;height:46px;margin-bottom:12px;}}
 @media(prefers-reduced-motion:reduce){.nb-h2-hero,.nb-h2-courses-sec,.nb-h2-hero-glow::before,.nb-h2-hero-glow::after,.fec-pill-dot{animation:none!important;}}
+/* ═══ AURORA PROFILE — Nabtex-style layout (CSS-only restyle + loyalty cards). To revert: delete this block, #aur-loy, and #aurora-loyalty-js ═══ */
+@property --p{syntax:'<number>';inherits:false;initial-value:0}
+#page-profile .page-header{background:none;border:0;padding:14px 0 0}
+#page-profile .page-header h1{display:none}
+#page-profile .page-header .breadcrumb{font-size:.78rem}
+#page-profile .section-sm{padding-top:12px}
+#page-profile .profile-layout{display:grid;grid-template-columns:minmax(0,1fr);max-width:700px;margin:0 auto;gap:0;align-items:start}
+#page-profile .profile-sidebar{display:contents}
+/* Cover: avatar + name + email, no hero */
+#page-profile .profile-card-header{order:1;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"av name" "av mail";column-gap:16px;align-items:center;text-align:start;padding:6px 2px 22px;background:none;overflow:visible}
+#page-profile .profile-card-header::before,#page-profile .profile-header-orb2,#page-profile .profile-avatar-ring,#page-profile .profile-avatar-halo{display:none}
+#page-profile .profile-avatar-wrap{grid-area:av;width:88px;height:88px;margin:0;border-radius:50%;overflow:hidden;border:3px solid var(--c-white);box-shadow:0 0 0 1px var(--c-border),0 8px 22px rgba(107,74,58,.14)}
+#page-profile .profile-avatar{width:100%;height:100%;border:0;box-shadow:none;border-radius:50%}
+#page-profile #profile-name{grid-area:name;align-self:end;margin:0;font-size:1.5rem;font-weight:800;line-height:1.3;color:var(--c-text);overflow-wrap:anywhere}
+#page-profile #profile-email{grid-area:mail;align-self:start;margin:2px 0 0;font-size:13px;line-height:1.5;color:var(--c-text-3);overflow-wrap:anywhere;word-break:normal;text-align:start}
+/* Tabs → quiet pill row */
+#page-profile .profile-nav{order:3;display:flex;flex-wrap:wrap;gap:8px;padding:0;margin:0 0 16px;overflow:visible}
+#page-profile .profile-tab{flex:1 1 130px;justify-content:center;width:auto;min-height:44px;margin:0;padding:10px 16px;border-radius:9999px;background:var(--c-white);border:1px solid var(--c-border);color:var(--c-text);font-size:13px;font-weight:700;box-shadow:none;transition:transform .15s,background .2s,border-color .2s,color .2s}
+#page-profile .profile-tab-icon{display:none}
+#page-profile .profile-tab:hover{background:var(--c-mint);border-color:rgba(107,74,58,.28);color:var(--c-forest)}
+#page-profile .profile-tab:active{transform:scale(.98)}
+#page-profile .profile-tab.active{background:linear-gradient(135deg,var(--c-forest-l),var(--c-forest));border-color:var(--c-forest);color:#fff;box-shadow:0 6px 16px rgba(107,74,58,.24)!important}
+#page-profile #btn-logout{margin-top:0!important;color:var(--c-error)}
+#page-profile #btn-logout:hover{background:rgba(192,86,75,.07);border-color:rgba(192,86,75,.35);color:var(--c-error)}
+#page-profile .profile-content{order:4;min-width:0}
+#page-profile .tab-card{border-radius:24px;padding:20px;border:1px solid var(--c-border-l);box-shadow:0 1px 2px rgba(62,44,35,.04),0 10px 28px rgba(62,44,35,.06)}
+/* Loyalty cards (purchase-driven; Nabtex uses a daily-visit streak instead) */
+#aur-loy{order:2;display:flex;flex-direction:column;gap:16px;margin-bottom:18px;min-width:0}
+#aur-loy .aul-card{padding:20px;border-radius:24px;background:var(--c-white);border:1px solid var(--c-border-l);box-shadow:0 1px 2px rgba(62,44,35,.04),0 10px 28px rgba(62,44,35,.06)}
+.aul-h{display:flex;align-items:center;gap:14px}
+.aul-ic{flex:none;width:44px;height:44px;border-radius:50%;background:rgba(184,137,95,.12);color:var(--c-gold-d);display:flex;align-items:center;justify-content:center}
+.aul-ic svg{width:24px;height:24px}
+.aul-m{flex:1;min-width:0}
+.aul-m b{display:block;font-size:1.2rem;font-weight:800;line-height:1.3;color:var(--c-text)}
+.aul-m span{display:block;margin-top:3px;font-size:12.5px;line-height:1.6;color:var(--c-text-3)}
+.aul-n{flex:none;width:76px;height:76px;border-radius:50%;position:relative;border:5px solid rgba(184,137,95,.16);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;transition:--p 1s cubic-bezier(.22,1,.36,1)}
+.aul-n::before{content:"";position:absolute;inset:-5px;padding:5px;border-radius:50%;pointer-events:none;background:conic-gradient(from 0deg,var(--c-gold-l) 0,var(--c-gold) calc(var(--p)*.6%),var(--c-forest) calc(var(--p)*1%),transparent 0);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.aul-n b{font-size:1.6rem;font-weight:900;letter-spacing:-.02em;color:var(--c-forest);font-family:var(--f-latin)}
+.aul-n small{margin-top:3px;font-size:10.5px;font-weight:700;color:var(--c-text-3)}
+.aul-bar{height:8px;border-radius:8px;background:rgba(184,137,95,.16);margin:20px 0 0;overflow:hidden}
+.aul-bar i{display:block;height:100%;width:0;border-radius:8px;background:linear-gradient(to left,var(--c-gold-l),var(--c-gold),var(--c-forest));transition:width .9s cubic-bezier(.22,1,.36,1)}
+.aul-st{display:flex;align-items:stretch;margin-top:18px;padding-top:16px;border-top:1px solid var(--c-border-l)}
+.aul-s{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:8px}
+.aul-s+.aul-s{flex:0 0 auto;margin-inline-start:10px;padding-inline-start:12px;border-inline-start:1px solid var(--c-border-l)}
+.aul-si{flex:none;width:32px;height:32px;border-radius:50%;background:rgba(107,74,58,.08);color:var(--c-forest);display:flex;align-items:center;justify-content:center}
+.aul-si svg{width:16px;height:16px}
+.aul-sx small{display:block;font-size:11.5px;line-height:1.45;color:var(--c-text-3);white-space:nowrap}
+.aul-sx b{display:block;margin-top:1px;font-size:1.1rem;font-weight:800;line-height:1.35;color:var(--c-forest);font-family:var(--f-latin)}
+.aul-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;margin-top:14px;padding:11px 18px;border:0;border-radius:9999px;background:linear-gradient(135deg,var(--c-forest-l),var(--c-forest));color:#fff;font-family:var(--f-arabic);font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px rgba(107,74,58,.24);transition:transform .15s}
+.aul-btn:active{transform:scale(.98)}
+.aul-medal{flex:none;display:flex;align-items:center;justify-content:center;border-radius:50%;font-family:var(--f-latin);font-weight:800;color:var(--tt);background:radial-gradient(circle at 30% 22%,var(--tl),var(--tm) 55%,var(--td));box-shadow:inset 0 1.5px 2px rgba(255,255,255,.75),inset 0 -4px 8px rgba(0,0,0,.18),0 0 0 3px var(--tk),0 6px 18px var(--tg)}
+.aul-lv .aul-medal{width:48px;height:48px;font-size:19px}
+.aul-lv .aul-m b{font-size:1.05rem}
+.aul-rows{margin-top:16px;border-top:1px solid var(--c-border-l)}
+.aul-r{display:flex;align-items:center;gap:12px;padding:11px 8px;border-bottom:1px solid var(--c-border-l);font-size:13px}
+.aul-r:last-child{border-bottom:0}
+.aul-r .aul-medal{width:30px;height:30px;font-size:13px;box-shadow:inset 0 1px 1.5px rgba(255,255,255,.75),inset 0 -2px 4px rgba(0,0,0,.16),0 0 0 2px var(--tk)}
+.aul-r span{flex:1;min-width:0;font-weight:700;color:var(--c-text)}
+.aul-r em{font-style:normal;font-size:12px;color:var(--c-text-3);white-space:nowrap}
+.aul-r.lock{opacity:.55}
+.aul-r.cur{border-radius:12px;background:rgba(184,137,95,.1);border-bottom-color:transparent}
+.aul-r.cur em{color:var(--c-forest);font-weight:800}
+.aul-r svg{flex:none;width:16px;height:16px;color:var(--c-forest)}
+@media(max-width:430px){#aur-loy .aul-card{padding:16px}.aul-n{width:70px;height:70px}#page-profile #profile-name{font-size:1.4rem}}
+@media(prefers-reduced-motion:reduce){.aul-n,.aul-bar i{transition:none}}
+/* ═══ /AURORA PROFILE ═══ */
 </style>
 </head>
 <body>
@@ -1111,6 +1177,7 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:2.5px
         <button class="profile-tab" id="btn-logout" style="margin-top:8px;"><span class="profile-tab-icon">🚪</span> تسجيل الخروج</button>
       </nav>
     </aside>
+    <div id="aur-loy" aria-live="polite"></div>
     <div class="profile-content">
       <div id="panel-orders" class="tab-panel active"><div class="tab-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px;"><h2 style="margin-bottom:0;">مشترياتي</h2><button onclick="navigate('shop')" class="btn btn-ghost btn-sm">+ تسوق المزيد</button></div><div id="orders-list"><div style="display:flex;justify-content:center;padding:44px;"><div class="spinner"></div></div></div></div></div>
       <div id="panel-edit" class="tab-panel"><div class="tab-card"><h2>تعديل الملف الشخصي</h2>
@@ -1859,6 +1926,67 @@ console.log('%c✨ Aurora × Firebase v3 — Ready','color:#b8895f;font-weight:b
   };
   try{paint(Store.getState('user'));Store.subscribe('user',paint);}catch(e){paint(null);}
   var av=$('nbx-avatar');if(av)av.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();navigate('profile');}});
+})();
+</script>
+<script id="aurora-loyalty-js">
+/* Aurora profile loyalty cards — read-only: derives everything from OrdersService.getOrders(); writes nothing to Store/Firestore. */
+(function(){
+  try{
+    var TIERS=[
+      {name:'بداية الرحلة',min:0,c:['#f2ebe3','#cdb8a8','#a98a76','#3e2c23','rgba(169,138,118,.18)','rgba(169,138,118,.38)']},
+      {name:'لؤلؤ',min:1,c:['#ffffff','#efe6dd','#cbb8a8','#3e2c23','rgba(203,184,168,.22)','rgba(203,184,168,.5)']},
+      {name:'روز جولد',min:3,c:['#fde4da','#e8ab97','#b9715c','#4a2418','rgba(185,113,92,.18)','rgba(185,113,92,.42)']},
+      {name:'ذهبي',min:6,c:['#fff3c4','#e2b04a','#a8761a','#3a2400','rgba(226,176,74,.2)','rgba(226,176,74,.5)']},
+      {name:'ألماس',min:10,c:['#f4fbff','#bfe3f2','#6fb2d0','#143646','rgba(111,178,208,.2)','rgba(111,178,208,.5)']}
+    ];
+    var ICON_GEM='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M9 3l3 6 3-6M12 9v12"/></svg>';
+    var ICON_BAG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
+    var ICON_TAG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>';
+    var ICON_OK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    var ICON_SHOP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>';
+    function tv(t){var c=t.c;return '--tl:'+c[0]+';--tm:'+c[1]+';--td:'+c[2]+';--tt:'+c[3]+';--tk:'+c[4]+';--tg:'+c[5];}
+    function pcs(n){return n===1?'قطعة واحدة':n+' قطع';}
+    function stats(){
+      var orders=[];try{orders=OrdersService.getOrders()||[];}catch(e){}
+      var pieces=0,total=0;
+      orders.forEach(function(o){total+=Number(o.total)||0;(o.items||[]).forEach(function(i){pieces+=Number(i.quantity)||0;});});
+      return{orders:orders.length,pieces:pieces,total:total};
+    }
+    function render(){
+      var host=document.getElementById('aur-loy');if(!host)return;
+      var st=stats(),lv=0;
+      TIERS.forEach(function(t,i){if(st.pieces>=t.min)lv=i;});
+      var cur=TIERS[lv],nxt=TIERS[lv+1],p=nxt?Math.max(0,Math.min(100,(st.pieces-cur.min)/(nxt.min-cur.min)*100)):100;
+      var sub=nxt?('التالي: '+nxt.name+' عند '+pcs(nxt.min)):'وصلت لأعلى مستوى في أورورا';
+      var money='0 ج.م';try{money=Currency.fmt(st.total);}catch(e){}
+      var rows=TIERS.map(function(t,i){
+        var cls=i===lv?'cur':(i<lv?'':'lock');
+        var tail=i<lv?ICON_OK:'<em>'+(i===lv?'مستواك الحالي':pcs(t.min))+'</em>';
+        return '<div class="aul-r '+cls+'" style="'+tv(t)+'"><i class="aul-medal">'+i+'</i><span>'+t.name+'</span>'+tail+'</div>';
+      }).join('');
+      host.innerHTML=
+        '<div class="aul-card"><div class="aul-h"><div class="aul-ic">'+ICON_GEM+'</div><div class="aul-m"><b>'+cur.name+'</b><span>'+sub+'</span></div>'+
+        '<div class="aul-n" style="--p:0" data-p="'+p+'" role="img" aria-label="'+st.pieces+' قطعة"><b>'+st.pieces+'</b><small>قطعة</small></div></div>'+
+        '<div class="aul-bar"><i data-w="'+p+'"></i></div>'+
+        '<div class="aul-st"><div class="aul-s"><div class="aul-si">'+ICON_BAG+'</div><div class="aul-sx"><small>الطلبات</small><b>'+st.orders+'</b></div></div>'+
+        '<div class="aul-s"><div class="aul-si">'+ICON_TAG+'</div><div class="aul-sx"><small>إجمالي المشتريات</small><b>'+money+'</b></div></div></div>'+
+        '<button type="button" class="aul-btn" onclick="navigate(\'shop\')">'+ICON_SHOP+'تسوق المزيد</button></div>'+
+        '<div class="aul-card aul-lv" style="'+tv(cur)+'"><div class="aul-h"><i class="aul-medal">'+lv+'</i><div class="aul-m"><b>مستويات أورورا</b><span>المستوى '+lv+' من '+(TIERS.length-1)+'</span></div></div><div class="aul-rows">'+rows+'</div></div>';
+      requestAnimationFrame(function(){requestAnimationFrame(function(){
+        var n=host.querySelector('.aul-n'),b=host.querySelector('.aul-bar i');
+        if(n)n.style.setProperty('--p',n.getAttribute('data-p'));
+        if(b)b.style.width=b.getAttribute('data-w')+'%';
+      });});
+    }
+    function boot(tries){
+      if(typeof Store==='undefined'||typeof OrdersService==='undefined'){if(tries<40)setTimeout(function(){boot(tries+1);},50);return;}
+      render();
+      Store.subscribe('orders',render);Store.subscribe('user',render);
+      var pg=document.getElementById('page-profile');
+      if(pg&&window.MutationObserver){var was=pg.classList.contains('active');new MutationObserver(function(){var on=pg.classList.contains('active');if(on&&!was)render();was=on;}).observe(pg,{attributes:true,attributeFilter:['class']});}
+    }
+    boot(0);
+  }catch(e){console.warn('aurora loyalty:',e);}
 })();
 </script>
 </body>
